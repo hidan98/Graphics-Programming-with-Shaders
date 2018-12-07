@@ -49,16 +49,16 @@ void DepthShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 }
 
 
-void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const matrixInfo &info_)
+void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	
 
 	// Transpose the matrices to prepare them for the shader.
-	XMMATRIX tworld = XMMatrixTranspose(info_.worldMatrix);
-	XMMATRIX tview = XMMatrixTranspose(info_.lightViewMatrix);
-	XMMATRIX tproj = XMMatrixTranspose(info_.lightProjectionMatrix);
+	XMMATRIX tworld = XMMatrixTranspose(worldMatrix);
+	XMMATRIX tview = XMMatrixTranspose(viewMatrix);
+	XMMATRIX tproj = XMMatrixTranspose(projectionMatrix);
 
 	// Lock the constant buffer so it can be written to.k
 	deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

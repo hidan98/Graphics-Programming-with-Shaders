@@ -103,7 +103,7 @@ void ShadowShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 }
 
 
-void ShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, shadowInfo *info_, ID3D11ShaderResourceView* depth, ID3D11ShaderResourceView* depth1)
+void ShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light *info_[2], ID3D11ShaderResourceView* depth, ID3D11ShaderResourceView* depth1)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -131,11 +131,11 @@ void ShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const
 	lightPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
 	{
-		lightPtr->ambient[i] = info_->light[i]->getAmbientColour();
-		lightPtr->diffuse[i] = info_->light[i]->getDiffuseColour();
-		lightPtr->direction[i].x = info_->light[i]->getDirection().x;
-		lightPtr->direction[i].y = info_->light[i]->getDirection().y;
-		lightPtr->direction[i].z = info_->light[i]->getDirection().z;
+		lightPtr->ambient[i] = info_[i]->getAmbientColour();
+		lightPtr->diffuse[i] = info_[i]->getDiffuseColour();
+		lightPtr->direction[i].x = info_[i]->getDirection().x;
+		lightPtr->direction[i].y = info_[i]->getDirection().y;
+		lightPtr->direction[i].z = info_[i]->getDirection().z;
 		lightPtr->direction[i].w = 1.0f;
 	}
 	
@@ -155,8 +155,8 @@ void ShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const
 	lightMatrixPtr = (lightMatrixType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
 	{
-		lightMatrixPtr->lightView[i] = XMMatrixTranspose(info_->light[i]->getViewMatrix());
-		lightMatrixPtr->lightProjection[i] = XMMatrixTranspose(info_->light[i]->getOrthoMatrix());
+		lightMatrixPtr->lightView[i] = XMMatrixTranspose(info_[i]->getViewMatrix());
+		lightMatrixPtr->lightProjection[i] = XMMatrixTranspose(info_[i]->getOrthoMatrix());
 	}
 	deviceContext->Unmap(lightMatrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &lightMatrixBuffer);

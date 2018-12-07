@@ -43,7 +43,7 @@ OutputType explode(InputType input, float normal)
 
 	float3 direction = normal * sin(time / 5) + input.position;
 
-	output.position = float4(input.position, 1.0f);// +float4(direction, 1.0f);
+	output.position = float4(input.position, 1.0f) +float4(direction, 1.0f);
 	output.position = mul(output.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);

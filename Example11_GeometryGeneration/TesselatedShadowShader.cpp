@@ -144,7 +144,7 @@ void TesselatedShadowShader::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WC
 	loadGeometryShader(gsFilename);
 }
 
-void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView*depthMap, ID3D11ShaderResourceView* depthMap1, shadowInfo* info_, float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[])
+void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView*depthMap, ID3D11ShaderResourceView* depthMap1, Light* info_[2], float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[])
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -177,11 +177,11 @@ void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceCont
 	lightPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
 	{
-		lightPtr->ambient[i] = info_->light[i]->getAmbientColour();
-		lightPtr->diffuse[i] = info_->light[i]->getDiffuseColour();
-		lightPtr->direction[i].x = info_->light[i]->getDirection().x;
-		lightPtr->direction[i].y = info_->light[i]->getDirection().y;
-		lightPtr->direction[i].z = info_->light[i]->getDirection().z;
+		lightPtr->ambient[i] = info_[i]->getAmbientColour();
+		lightPtr->diffuse[i] = info_[i]->getDiffuseColour();
+		lightPtr->direction[i].x = info_[i]->getDirection().x;
+		lightPtr->direction[i].y = info_[i]->getDirection().y;
+		lightPtr->direction[i].z = info_[i]->getDirection().z;
 		lightPtr->direction[i].w = 1.0f;
 	}
 	deviceContext->Unmap(lightBuffer, 0);
@@ -223,7 +223,7 @@ void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceCont
 	// Set shader texture resource in the pixel shader.
 
 
-	//deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
+	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
 
 	deviceContext->Map(timeBuffer1, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	timeBuffer1Type* dataPtr99 = (timeBuffer1Type*)mappedResource.pData;
@@ -237,8 +237,8 @@ void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceCont
 	lightMatrixPtr = (lightMatrixType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
 	{
-		lightMatrixPtr->lightView[i] = XMMatrixTranspose(info_->light[i]->getViewMatrix());
-		lightMatrixPtr->lightProjection[i] = XMMatrixTranspose(info_->light[i]->getOrthoMatrix());
+		lightMatrixPtr->lightView[i] = XMMatrixTranspose(info_[i]->getViewMatrix());
+		lightMatrixPtr->lightProjection[i] = XMMatrixTranspose(info_[i]->getOrthoMatrix());
 	}
 	deviceContext->Unmap(lightMatrixBuffer, 0);
 	deviceContext->GSSetConstantBuffers(2, 1, &lightMatrixBuffer);

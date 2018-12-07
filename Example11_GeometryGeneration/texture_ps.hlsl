@@ -38,7 +38,7 @@ float4 main(InputType input) : SV_TARGET
 
 	//lightColour = saturate(lightColour + ambiantColour);
 
-	return lightColour * textureColour;
+	return textureColour;
 	//return float4 (texture0.Sample(Sampler0, input.tex));
 	
 }

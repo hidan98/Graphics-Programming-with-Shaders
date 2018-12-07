@@ -69,7 +69,7 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	output.tangent = normalize(output.tangent);
 	
 
-	//vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) *1;
+	vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) * 2;
 
 
 

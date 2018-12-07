@@ -40,7 +40,7 @@ public:
 	ShadowShader(ID3D11Device* device, HWND hwnd);
 	~ShadowShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, shadowInfo *info_, ID3D11ShaderResourceView* depth, ID3D11ShaderResourceView* depth1);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light *info_[2], ID3D11ShaderResourceView* depth, ID3D11ShaderResourceView* depth1);
 
 private:
 	void initShader(WCHAR*, WCHAR*);

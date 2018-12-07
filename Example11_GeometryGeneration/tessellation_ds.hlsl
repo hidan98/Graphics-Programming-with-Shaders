@@ -49,10 +49,22 @@ float sumOfWaves(float x, float z)
 	float sum = 0;
 	float sinIn1 = angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x;
 	float sinIn2 = angularWave.y * distance - time.x * angularFrequency.y + phaseShift.y;
-	sum = amplitude.x * sin(sinIn1);
-	sum += amplitude.y * cos(sinIn2);
+	sum = (amplitude.x * sin(sinIn1)) + (amplitude.y * sin(sinIn2));
+	//sum += amplitude.y * cos(sinIn2);
 
 	return sum;
+}
+float getnormal(float x, float z)
+{
+	float distance = sqrt(x*x + z * z);
+
+	float sum = 0;
+	float sinIn1 = angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x;
+	float sinIn2 = angularWave.y * distance - time.x * angularFrequency.y + phaseShift.y;
+
+	float normal;
+	normal = amplitude.x * cos(sinIn1) + amplitude.y * cos(sinIn2);
+	return normal;
 }
 
 [domain("quad")]
@@ -97,28 +109,40 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	if (output.normal.y == 1)
 	{
 		vertexPosition.y = sumOfWaves(vertexPosition.x, vertexPosition.z);
+		output.normal.x = 1 - getnormal(vertexPosition.x, vertexPosition.z);
+		output.normal.y = abs(output.normal.x);
 	}
 	else if (output.normal.y == -1)
 	{
 		vertexPosition.y = -sumOfWaves(vertexPosition.x, vertexPosition.z);
+		output.normal.x = (1 - getnormal(vertexPosition.x, vertexPosition.z));
+		output.normal.y = -abs(output.normal.x);
 	}
 
 	else if (output.normal.x == 1)
 	{
 		vertexPosition.x = sumOfWaves(vertexPosition.y, vertexPosition.z);
+		output.normal.z = (1 - getnormal(vertexPosition.y, vertexPosition.z));
+		output.normal.x = abs(output.normal.x);
 	}
 	else if (output.normal.x == -1)
 	{
 		vertexPosition.x = -sumOfWaves(vertexPosition.y, vertexPosition.z);
+		output.normal.z = (1 - getnormal(vertexPosition.y, vertexPosition.z));
+		output.normal.x = -abs(output.normal.x);
 	}
 
 	else if (output.normal.z == 1)
 	{
 		vertexPosition.z = sumOfWaves(vertexPosition.x, vertexPosition.y);
+		output.normal.x = (1 - getnormal(vertexPosition.x, vertexPosition.y));
+		output.normal.z = abs(output.normal.x);
 	}
 	else if (output.normal.z == -1)
 	{
 		vertexPosition.z = -sumOfWaves(vertexPosition.x, vertexPosition.y);
+		output.normal.x = (1 - getnormal(vertexPosition.x, vertexPosition.y));
+		output.normal.y = -abs(output.normal.x);
 	}
 
 

@@ -15,7 +15,7 @@ public:
 	TesselatedDepthShader(ID3D11Device* device, HWND hwnd);
 	~TesselatedDepthShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const matrixInfo &info, float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[]);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[]);
 
 
 private:

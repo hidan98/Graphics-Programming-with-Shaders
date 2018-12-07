@@ -99,15 +99,15 @@ void TesselatedDepthShader::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WCH
 }
 
 
-void TesselatedDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const matrixInfo &info_, float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[])
+void TesselatedDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[])
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 
 	// Transpose the matrices to prepare them for the shader.
-	XMMATRIX tworld = XMMatrixTranspose(info_.worldMatrix);
-	XMMATRIX tview = XMMatrixTranspose(info_.lightViewMatrix);
-	XMMATRIX tproj = XMMatrixTranspose(info_.lightProjectionMatrix);
+	XMMATRIX tworld = XMMatrixTranspose(worldMatrix);
+	XMMATRIX tview = XMMatrixTranspose(viewMatrix);
+	XMMATRIX tproj = XMMatrixTranspose(projectionMatrix);
 
 	// Lock the constant buffer so it can be written to.
 	deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
