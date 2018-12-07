@@ -27,7 +27,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	tessDepth = new TesselatedDepthShader(renderer->getDevice(), hwnd);
 	textureMgr->loadTexture("brick", L"res/brick1.dds");
 	textureMgr->loadTexture("bunny", L"res/bunny.png");
-	textureMgr->loadTexture("displa", L"res/DisplacementMap.png");
+	textureMgr->loadTexture("normal", L"res/NormalMap.png");
 	geometryShader = new GeometryShader(renderer->getDevice(), hwnd);
 	tessShadow = new TesselatedShadowShader(renderer->getDevice(), hwnd);
 
@@ -41,15 +41,15 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	
 	shadowInfo_ = new shadowInfo;
 	shadowInfo_->light[0] = new Light;
-	shadowInfo_->light[0]->setAmbientColour(0.3f, 0.30f, 0.3f, 1.0f);
+	shadowInfo_->light[0]->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
 	shadowInfo_->light[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	shadowInfo_->light[0]->setDirection(0.7f, -0.7f, 0.7f);
-	shadowInfo_->light[0]->setPosition(-10.f, 10.f, 0.f);
+	shadowInfo_->light[0]->setDirection(0.f, 0.0f, 1.0f);
+	shadowInfo_->light[0]->setPosition(0.f, 0.f, 0.f);
 	shadowInfo_->light[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
 	shadowInfo_->light[0]->generateViewMatrix();
 
 	shadowInfo_->light[1] = new Light;
-	shadowInfo_->light[1]->setAmbientColour(0.10f, 0.1f, 0.1f, 1.0f);
+	shadowInfo_->light[1]->setAmbientColour(0.0f, 0.1f, 0.1f, 1.0f);
 	shadowInfo_->light[1]->setDiffuseColour(1.0f, 0.0f, 0.0f, 1.0f);
 	shadowInfo_->light[1]->setDirection(0.0f, -0.2f, 0.7f);
 	shadowInfo_->light[1]->setPosition(0.f, 0.f, -10.f);
@@ -65,7 +65,15 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	stopTime = true;
 
-
+	light1 = new Light;
+	light1->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
+	light1->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	light1->setDirection(0.0f, 0.f, 1.f);
+	light1->setPosition(0.f, 0.f, -10.f);
+	/*shadowInfo_->light[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
+	shadowInfo_->light[1]->generateViewMatrix();
+*/
+	
 	sphere = new CustomSphereMesh(renderer->getDevice());
 }
 
@@ -79,48 +87,48 @@ void App1::depthPass()
 	matrixInfo matrixInfo_;
 
 
-	for (int i = 0; i < 2; i++)
-	{
+	//for (int i = 0; i < 2; i++)
+	//{
 
-		shadowInfo_->shadowMap[i]->setRenderTarget(renderer->getDeviceContext());
-		shadowInfo_->shadowMap[i]->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
-		
-
-
-		// get the world, view, and projection matrices from the camera and d3d objects.
-		
-		shadowInfo_->light[i]->generateViewMatrix();
-		matrixInfo_.lightViewMatrix = shadowInfo_->light[i]->getViewMatrix();
-		matrixInfo_.lightProjectionMatrix = shadowInfo_->light[i]->getOrthoMatrix();
-		
-		
+	//	shadowInfo_->shadowMap[i]->setRenderTarget(renderer->getDeviceContext());
+	//	shadowInfo_->shadowMap[i]->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+	//	
 
 
-		// get the world, view, and projection matrices from the camera and d3d objects.
-
-		matrixInfo_.worldMatrix = renderer->getWorldMatrix();
-		matrixInfo_.worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
-		// Render floor
-		plane->sendData(renderer->getDeviceContext());
-		depthShader->setShaderParameters(renderer->getDeviceContext(), matrixInfo_);
-		depthShader->render(renderer->getDeviceContext(), plane->getIndexCount());
-
-		matrixInfo_.worldMatrix = renderer->getWorldMatrix();
-		matrixInfo_.worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
-		XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-		//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	//	// get the world, view, and projection matrices from the camera and d3d objects.
+	//	
+	//	shadowInfo_->light[i]->generateViewMatrix();
+	//	matrixInfo_.lightViewMatrix = shadowInfo_->light[i]->getViewMatrix();
+	//	matrixInfo_.lightProjectionMatrix = shadowInfo_->light[i]->getOrthoMatrix();
+	//	
+	//	
 
 
-		// Render model
-		tesselatedCube->sendData(renderer->getDeviceContext());
-		tessDepth->setShaderParameters(renderer->getDeviceContext(), matrixInfo_, time, amplitude, angularWave, angularFrequency, phaseShift);
-		tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
+	//	// get the world, view, and projection matrices from the camera and d3d objects.
 
-		// Set back buffer as render target and reset view port.
-		renderer->setBackBufferRenderTarget();
-		renderer->resetViewport();
+	//	matrixInfo_.worldMatrix = renderer->getWorldMatrix();
+	//	matrixInfo_.worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
+	//	// Render floor
+	//	plane->sendData(renderer->getDeviceContext());
+	//	depthShader->setShaderParameters(renderer->getDeviceContext(), matrixInfo_);
+	//	depthShader->render(renderer->getDeviceContext(), plane->getIndexCount());
 
-	}
+	//	matrixInfo_.worldMatrix = renderer->getWorldMatrix();
+	//	matrixInfo_.worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	//	XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	//	//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+
+
+	//	// Render model
+	//	tesselatedCube->sendData(renderer->getDeviceContext());
+	//	tessDepth->setShaderParameters(renderer->getDeviceContext(), matrixInfo_, time, amplitude, angularWave, angularFrequency, phaseShift);
+	//	tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
+
+	//	// Set back buffer as render target and reset view port.
+	//	renderer->setBackBufferRenderTarget();
+	//	renderer->resetViewport();
+
+	//}
 
 	
 }
@@ -137,28 +145,28 @@ void App1::shadowPass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
-	worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
-	// Render floor
-	plane->sendData(renderer->getDeviceContext());
-	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,	textureMgr->getTexture("brick"), shadowInfo_, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView());
-	shadowShader->render(renderer->getDeviceContext(), plane->getIndexCount());
+	//worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
+	//// Render floor
+	//plane->sendData(renderer->getDeviceContext());
+	//shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,	textureMgr->getTexture("brick"), shadowInfo_, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView());
+	//shadowShader->render(renderer->getDeviceContext(), plane->getIndexCount());
 
-	// Render model
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
-	XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-	//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
-	tesselatedCube->sendData(renderer->getDeviceContext());
-	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), shadowInfo_, time, amplitude, angularWave, angularFrequency, phaseShift);
-	tessShadow->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
+	//// Render model
+	//worldMatrix = renderer->getWorldMatrix();
+	//worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	//XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	////worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	//tesselatedCube->sendData(renderer->getDeviceContext());
+	//tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), shadowInfo_, time, amplitude, angularWave, angularFrequency, phaseShift);
+	//tessShadow->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
 
 
 	//hight map sphere 
-	//worldMatrix = renderer->getWorldMatrix();
-	//sphere->sendData(renderer->getDeviceContext());
-	//hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("bunnyNorm.png"));
-	//hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
+	worldMatrix = renderer->getWorldMatrix();
+	sphere->sendData(renderer->getDeviceContext());
+	hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light1);
+	hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
 
 	//worldMatrix = renderer->getWorldMatrix();

@@ -65,10 +65,11 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	float3 tan2 = lerp(patch[3].tangent, patch[2].tangent, uvwCoord.y);
 	output.tangent = lerp(tan1, tan1, uvwCoord.x);	
 
-	/*output.tangent = mul(output.tangent, (float3x3)worldMatrix);
-	output.tangent = normalize(output.tangent);*/
-		
-	vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) *1;
+	output.tangent = mul(output.tangent, (float3x3)worldMatrix);
+	output.tangent = normalize(output.tangent);
+	
+
+	//vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) *1;
 
 
 

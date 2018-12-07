@@ -47,9 +47,10 @@ float sumOfWaves(float x, float z)
 	float distance = sqrt(x*x + z * z);
 
 	float sum = 0;
-
-	sum = amplitude.x * sin(angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x);
-	sum += amplitude.y * sin(angularWave.y * distance - time.x * angularFrequency.y + phaseShift.y);
+	float sinIn1 = angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x;
+	float sinIn2 = angularWave.y * distance - time.x * angularFrequency.y + phaseShift.y;
+	sum = amplitude.x * sin(sinIn1);
+	sum += amplitude.y * cos(sinIn2);
 
 	return sum;
 }
@@ -75,10 +76,10 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	float2 tex2 = lerp(patch[3].tex, patch[2].tex, uvwCoord.y);
 	output.tex = lerp(tex1, tex2, uvwCoord.x);
 
-	output.normal = mul(output.normal, (float3x3)worldMatrix);
+	//output.normal = mul(output.normal, (float3x3)worldMatrix);
 
-	// Normalize the normal vector.
-	output.normal = normalize(output.normal);
+	//// Normalize the normal vector.
+	//output.normal = normalize(output.normal);
 
 
 
@@ -92,7 +93,7 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 
 	////this is to limit the madness
 
-	// this checks what face we are applying the wave to by checking which way the normal is facing
+	 //this checks what face we are applying the wave to by checking which way the normal is facing
 	if (output.normal.y == 1)
 	{
 		vertexPosition.y = sumOfWaves(vertexPosition.x, vertexPosition.z);

@@ -83,6 +83,7 @@ private:
 
 	shadowInfo* shadowInfo_;
 	
+	Light* light1;
 };
 
 #endif
