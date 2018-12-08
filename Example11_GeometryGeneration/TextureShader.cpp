@@ -90,7 +90,7 @@ void TextureShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 }
 
 
-void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light)
+void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -116,13 +116,13 @@ void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 
-	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	/*deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
 	lightPtr->diffuse = light->getDiffuseColour();
 	lightPtr->direction = light->getDirection();
 	lightPtr->renderNormal = false;
 	deviceContext->Unmap(lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);*/
 
 }
 

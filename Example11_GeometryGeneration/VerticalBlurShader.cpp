@@ -4,7 +4,7 @@
 
 VerticalBlurShader::VerticalBlurShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"HorizontalBlur_vs.cso", L"HorizontalBlur_ps.cso");
+	initShader(L"VerticalBlur_vs.cso", L"VerticalBlur_ps.cso");
 }
 
 

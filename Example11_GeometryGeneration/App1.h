@@ -40,7 +40,7 @@ public:
 	~App1();
 	void init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN);
 	
-	void firstPass();
+	void extractLight();
 	void depthPass();
 	void shadowPass();
 	void horizontalBlur();
@@ -48,6 +48,11 @@ public:
 	void bloomPass();
 	void combinePass();
 	bool frame();
+
+	void finalPass();
+
+
+	void renderNormal();
 
 protected:
 	bool render();
@@ -85,6 +90,7 @@ private:
 	RenderTexture* bloomTexture;
 	RenderTexture* texture;
 	RenderTexture* combineTexture;
+	RenderTexture* testTexture;
 
 
 	HoriszontalBlurShader* horizontalShader;

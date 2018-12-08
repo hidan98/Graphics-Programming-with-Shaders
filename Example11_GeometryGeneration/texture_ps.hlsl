@@ -28,10 +28,10 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 
 float4 main(InputType input) : SV_TARGET
 {
-	float4 lighColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
+	//float4 lighColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
 	float4 textureColour = texture0.Sample(Sampler0, input.tex);
 	
-	return textureColour * lighColour;
+	return textureColour;// *lighColour;
 	
 	
 }

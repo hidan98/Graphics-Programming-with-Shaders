@@ -34,12 +34,12 @@ float4 main(InputType input) : SV_TARGET
 	float4 BrightColour;
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(Sampler0, input.tex);
-	lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
+	//lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
 
-	lightColour *= textureColour;
+	lightColour = textureColour;
 
 	float brightness = dot(lightColour.rgb, float3(0.2126, 0.7152, 0.0722));
-	if (brightness > 0.5f)
+	if (brightness > 0.7f)
 	{
 		return BrightColour = float4(lightColour.rgb, 1.0);
 	}
