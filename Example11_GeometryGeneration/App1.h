@@ -13,7 +13,10 @@
 #include "TesselatedShadowShader.h"
 #include "HightMapSphereShader.h"
 #include "CustomSphereMesh.h"
-
+#include "HoriszontalBlurShader.h"
+#include "VerticalBlurShader.h"
+#include "ExtractLightShader.h"
+#include "CombineShader.h"
 struct matrixInfo
 {
 	XMMATRIX lightViewMatrix;
@@ -36,8 +39,14 @@ public:
 	App1();
 	~App1();
 	void init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN);
+	
+	void firstPass();
 	void depthPass();
 	void shadowPass();
+	void horizontalBlur();
+	void verticalBlur();
+	void bloomPass();
+	void combinePass();
 	bool frame();
 
 protected:
@@ -59,6 +68,7 @@ private:
 	CubeMesh* cube;
 	PlaneMesh* plane;
 	PointMesh* mesh;
+	CubeMesh* anotherCube;
 
 	
 	//Light* light1;
@@ -66,9 +76,21 @@ private:
 
 	OrthoMesh* orthoMesh;
 	OrthoMesh* orthoMesh1;
-
+	OrthoMesh* screenOrtho;
 	RenderTexture* shadow;
 	RenderTexture* shadow1;
+
+	RenderTexture* horizontalBlurTexture;
+	RenderTexture* verticalBlurTexture;
+	RenderTexture* bloomTexture;
+	RenderTexture* texture;
+	RenderTexture* combineTexture;
+
+
+	HoriszontalBlurShader* horizontalShader;
+	VerticalBlurShader* verticalShader;
+	ExtractLightShader* extractShader;
+	CombineShader* combine;
 
 	float amplitude[2] = { 0.8f, 0.2f };
 	float angularWave[2] = { 1.0f, 8.0f };
@@ -84,6 +106,12 @@ private:
 	shadowInfo* shadowInfo_;
 	
 	Light* light[2];
+
+
+	OrthoMesh* orthoMeshBlur;
+
+
+	int times;
 };
 
 #endif

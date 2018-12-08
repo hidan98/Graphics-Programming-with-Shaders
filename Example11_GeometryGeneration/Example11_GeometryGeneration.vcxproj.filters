@@ -51,6 +51,18 @@
     <ClCompile Include="HightMapSphereShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HoriszontalBlurShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalBlurShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractLightShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CombineShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -81,6 +93,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HightMapSphereShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HoriszontalBlurShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalBlurShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtractLightShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CombineShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -135,6 +159,27 @@
     </FxCompile>
     <FxCompile Include="sphere_ds.hlsl">
       <Filter>Resource Files\sphere stuff</Filter>
+    </FxCompile>
+    <FxCompile Include="VerticalBlur_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VerticalBlur_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="HorizontalBlur_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="HorizontalBlur_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Extract_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Extract_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="combine_ps.hlsl">
+      <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
