@@ -48,10 +48,16 @@ float sumOfWaves(float x, float z)
 
 	float sum = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	float sinIn1 = angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x;
 	float sinIn2 = angularWave.y * distance - time.x * angularFrequency.y + phaseShift.y;
 	sum = (amplitude.x * sin(sinIn1)) + (amplitude.y * sin(sinIn2));
 	//sum += amplitude.y * cos(sinIn2);
+=======
+
+	sum = amplitude.x * sin(angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x);
+	sum += amplitude.y * sin(angularWave.y * distance - time.x * angularFrequency.y + phaseShift.y);
+>>>>>>> parent of 6143710... bump mapping works!!!!
 =======
 
 	sum = amplitude.x * sin(angularWave.x * distance - time.x * angularFrequency.x + phaseShift.x);

@@ -44,7 +44,11 @@ OutputType explode(InputType input, float normal)
 	float3 direction = normal * sin(time / 5) + input.position;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	output.position = float4(input.position, 1.0f) +float4(direction, 1.0f);
+=======
+	output.position = float4(input.position, 1.0f) + float4(direction, 1.0f);
+>>>>>>> parent of 6143710... bump mapping works!!!!
 =======
 	output.position = float4(input.position, 1.0f) + float4(direction, 1.0f);
 >>>>>>> parent of 6143710... bump mapping works!!!!

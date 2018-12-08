@@ -73,16 +73,22 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	output.tangent = lerp(tan1, tan1, uvwCoord.x);	
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	output.tangent = mul(output.tangent, (float3x3)worldMatrix);
 	output.tangent = normalize(output.tangent);
 	
 
 	//vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) * 2;
 =======
+=======
+>>>>>>> parent of 6143710... bump mapping works!!!!
 	/*output.tangent = mul(output.tangent, (float3x3)worldMatrix);
 	output.tangent = normalize(output.tangent);*/
 		
 	vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) *1;
+<<<<<<< HEAD
+>>>>>>> parent of 6143710... bump mapping works!!!!
+=======
 >>>>>>> parent of 6143710... bump mapping works!!!!
 
 

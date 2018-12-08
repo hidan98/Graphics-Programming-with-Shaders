@@ -13,6 +13,7 @@ struct InputType
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 cbuffer LightBuffer : register(b0)
 {
@@ -34,6 +35,13 @@ float4 main(InputType input) : SV_TARGET
 	
 	return textureColour;// *lighColour;
 	
+=======
+
+float4 main(InputType input) : SV_TARGET
+{
+	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	return float4 (texture0.Sample(Sampler0, input.tex));
+>>>>>>> parent of 6143710... bump mapping works!!!!
 =======
 
 float4 main(InputType input) : SV_TARGET
