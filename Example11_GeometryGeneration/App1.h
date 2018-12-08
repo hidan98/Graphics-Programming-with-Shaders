@@ -17,6 +17,8 @@
 #include "VerticalBlurShader.h"
 #include "ExtractLightShader.h"
 #include "CombineShader.h"
+#include "SphereShadow.h"
+#include "SphereDepth.h"
 struct matrixInfo
 {
 	XMMATRIX lightViewMatrix;
@@ -69,6 +71,8 @@ private:
 	TesselatedDepthShader* tessDepth;
 	TesselatedShadowShader* tessShadow;
 	HightMapSphereShader* hightShader;
+	SphereShadow* sphereShadow;
+	SphereDepth* sphereDepth;
 
 	CubeMesh* cube;
 	PlaneMesh* plane;

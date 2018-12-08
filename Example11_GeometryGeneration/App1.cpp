@@ -32,6 +32,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	tessShadow = new TesselatedShadowShader(renderer->getDevice(), hwnd);
 	combine = new CombineShader(renderer->getDevice(), hwnd);
 	hightShader = new HightMapSphereShader(renderer->getDevice(), hwnd);
+	sphereShadow = new SphereShadow(renderer->getDevice(), hwnd);
+	sphereDepth = new SphereDepth(renderer->getDevice(), hwnd);
 
 	int shadowmapWidth = 2048 * 2;
 	int shadowmapHeight = 2048 *2;
@@ -169,10 +171,12 @@ void App1::depthPass()
 		////matrixInfo_.worldMatrix = XMMatrixMultiply(matrixInfo_.worldMatrix, scaleMatrix);
 
 
-		//// Render model
-		//tesselatedCube->sendData(renderer->getDeviceContext());
-		//tessDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix, time, amplitude, angularWave, angularFrequency, phaseShift);
-		//tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
+		// Render model
+		worldMatrix = renderer->getWorldMatrix();
+		worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+		tesselatedCube->sendData(renderer->getDeviceContext());
+		tessDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix, time, amplitude, angularWave, angularFrequency, phaseShift);
+		tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
 		worldMatrix = renderer->getWorldMatrix();
 		worldMatrix = XMMatrixTranslation(0.f, 7.f, 0.f);
@@ -180,6 +184,12 @@ void App1::depthPass()
 		cube->sendData(renderer->getDeviceContext());
 		depthShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 		depthShader->render(renderer->getDeviceContext(), cube->getIndexCount());
+
+
+		worldMatrix = XMMatrixTranslation(0.f, 7.0f, 1.f);
+		sphere->sendData(renderer->getDeviceContext());
+		sphereDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+		sphereDepth->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
 
 		// Set back buffer as render target and reset view port.
@@ -212,7 +222,7 @@ void App1::shadowPass()
 	// Render model
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	worldMatrix = XMMatrixTranslation(-5.f, 7.f, 5.f);
 //	XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
 	//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
 	tesselatedCube->sendData(renderer->getDeviceContext());
@@ -227,22 +237,25 @@ void App1::shadowPass()
 	shadowShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
 
-	renderer->setBackBufferRenderTarget();
-
-
-	//////hight map sphere 
-	//worldMatrix = renderer->getWorldMatrix();
-	//worldMatrix = XMMatrixTranslation(0.0f, 10.0f, 10.0f);
-	//sphere->sendData(renderer->getDeviceContext());
-	//hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light[0]);
-	//hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
-
-
 	
 
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0.f, 7.0f, 1.f);
+	sphere->sendData(renderer->getDeviceContext());
+	sphereShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), textureMgr->getTexture("normal"));
+	sphereShadow->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
-	//gui();
-//	renderer->endScene();
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0.0f, 10.0f, 10.0f);
+	sphere->sendData(renderer->getDeviceContext());
+	hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light[0]);
+	hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
+
+
+	renderer->setBackBufferRenderTarget();
+	
+
 }
 
 void App1::horizontalBlur()
