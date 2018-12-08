@@ -115,6 +115,7 @@ private:
 
 	shadowInfo* shadowInfo_;
 	
+<<<<<<< HEAD
 	Light* light[2];
 
 
@@ -122,6 +123,8 @@ private:
 
 
 	int times;
+=======
+>>>>>>> parent of 6143710... bump mapping works!!!!
 };
 
 #endif

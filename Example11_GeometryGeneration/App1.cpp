@@ -27,7 +27,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	tessDepth = new TesselatedDepthShader(renderer->getDevice(), hwnd);
 	textureMgr->loadTexture("brick", L"res/brick1.dds");
 	textureMgr->loadTexture("bunny", L"res/bunny.png");
-	textureMgr->loadTexture("normal", L"res/NormalMap.png");
+	textureMgr->loadTexture("displa", L"res/DisplacementMap.png");
 	geometryShader = new GeometryShader(renderer->getDevice(), hwnd);
 	tessShadow = new TesselatedShadowShader(renderer->getDevice(), hwnd);
 	combine = new CombineShader(renderer->getDevice(), hwnd);
@@ -42,6 +42,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	
 	shadowInfo_ = new shadowInfo;
+<<<<<<< HEAD
 	light[0] = new Light;
 	light[0]->setAmbientColour(0.3f, 0.3f, 0.3f, 1.0f);
 	light[0]->setDiffuseColour(1.0f, 1.0f, 0.0f, 1.0f);
@@ -60,6 +61,26 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	shadowInfo_->shadowMap[0] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	shadowInfo_->shadowMap[1] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
+=======
+	shadowInfo_->light[0] = new Light;
+	shadowInfo_->light[0]->setAmbientColour(0.3f, 0.30f, 0.3f, 1.0f);
+	shadowInfo_->light[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	shadowInfo_->light[0]->setDirection(0.7f, -0.7f, 0.7f);
+	shadowInfo_->light[0]->setPosition(-10.f, 10.f, 0.f);
+	shadowInfo_->light[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
+	shadowInfo_->light[0]->generateViewMatrix();
+
+	shadowInfo_->light[1] = new Light;
+	shadowInfo_->light[1]->setAmbientColour(0.10f, 0.1f, 0.1f, 1.0f);
+	shadowInfo_->light[1]->setDiffuseColour(1.0f, 0.0f, 0.0f, 1.0f);
+	shadowInfo_->light[1]->setDirection(0.0f, -0.2f, 0.7f);
+	shadowInfo_->light[1]->setPosition(0.f, 0.f, -10.f);
+	shadowInfo_->light[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
+	shadowInfo_->light[1]->generateViewMatrix();
+
+	shadowInfo_->shadowMap[0] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, 0.1f, 100.f);
+	shadowInfo_->shadowMap[1] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, 0.1f, 100.f);
+>>>>>>> parent of 6143710... bump mapping works!!!!
 
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / -4, screenHeight / -4);
 
@@ -67,12 +88,15 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	stopTime = true;
 
+<<<<<<< HEAD
 	horizontalBlurTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	verticalBlurTexture = new RenderTexture(renderer->getDevice(), screenWidth , screenHeight , SCREEN_NEAR, SCREEN_DEPTH);
 	bloomTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	texture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	testTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
+=======
+>>>>>>> parent of 6143710... bump mapping works!!!!
 
 	sphere = new CustomSphereMesh(renderer->getDevice());
 
@@ -147,6 +171,7 @@ void App1::depthPass()
 
 		// get the world, view, and projection matrices from the camera and d3d objects.
 		
+<<<<<<< HEAD
 		light[i]->generateViewMatrix();
 		
 		XMMATRIX lightViewMatrix = light[i]->getViewMatrix();
@@ -196,6 +221,39 @@ void App1::depthPass()
 		renderer->setBackBufferRenderTarget();
 		renderer->resetViewport();
 
+=======
+		shadowInfo_->light[i]->generateViewMatrix();
+		matrixInfo_.lightViewMatrix = shadowInfo_->light[i]->getViewMatrix();
+		matrixInfo_.lightProjectionMatrix = shadowInfo_->light[i]->getOrthoMatrix();
+		
+		
+
+
+		// get the world, view, and projection matrices from the camera and d3d objects.
+
+		matrixInfo_.worldMatrix = renderer->getWorldMatrix();
+		matrixInfo_.worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
+		// Render floor
+		plane->sendData(renderer->getDeviceContext());
+		depthShader->setShaderParameters(renderer->getDeviceContext(), matrixInfo_);
+		depthShader->render(renderer->getDeviceContext(), plane->getIndexCount());
+
+		matrixInfo_.worldMatrix = renderer->getWorldMatrix();
+		matrixInfo_.worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+		XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+		//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+
+
+		// Render model
+		tesselatedCube->sendData(renderer->getDeviceContext());
+		tessDepth->setShaderParameters(renderer->getDeviceContext(), matrixInfo_, time, amplitude, angularWave, angularFrequency, phaseShift);
+		tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
+
+		// Set back buffer as render target and reset view port.
+		renderer->setBackBufferRenderTarget();
+		renderer->resetViewport();
+
+>>>>>>> parent of 6143710... bump mapping works!!!!
 	}
 
 	
@@ -216,6 +274,7 @@ void App1::shadowPass()
 	worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
 	// Render floor
 	plane->sendData(renderer->getDeviceContext());
+<<<<<<< HEAD
 	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,	textureMgr->getTexture("brick"), light, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView());
 	shadowShader->render(renderer->getDeviceContext(), plane->getIndexCount());
 
@@ -227,6 +286,18 @@ void App1::shadowPass()
 	//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
 	tesselatedCube->sendData(renderer->getDeviceContext());
 	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"),  shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), light, time, amplitude, angularWave, angularFrequency, phaseShift);
+=======
+	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,	textureMgr->getTexture("brick"), shadowInfo_, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView());
+	shadowShader->render(renderer->getDeviceContext(), plane->getIndexCount());
+
+	// Render model
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	tesselatedCube->sendData(renderer->getDeviceContext());
+	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), shadowInfo_, time, amplitude, angularWave, angularFrequency, phaseShift);
+>>>>>>> parent of 6143710... bump mapping works!!!!
 	tessShadow->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
 
@@ -239,6 +310,7 @@ void App1::shadowPass()
 
 	
 
+<<<<<<< HEAD
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(0.f, 7.0f, 1.f);
 	sphere->sendData(renderer->getDeviceContext());
@@ -251,6 +323,13 @@ void App1::shadowPass()
 	sphere->sendData(renderer->getDeviceContext());
 	hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light[0]);
 	hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
+=======
+	//hight map sphere 
+	//worldMatrix = renderer->getWorldMatrix();
+	//sphere->sendData(renderer->getDeviceContext());
+	//hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("bunnyNorm.png"));
+	//hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
+>>>>>>> parent of 6143710... bump mapping works!!!!
 
 
 	renderer->setBackBufferRenderTarget();

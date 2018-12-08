@@ -14,6 +14,7 @@ struct InputType
 	float3 tangent : TANGENT;
 	float4 lightViewPos[2] : TEXCOORD1;
 };
+<<<<<<< HEAD
 cbuffer LightBuffer : register(b0)
 {
 	float4 ambient[2];
@@ -45,10 +46,13 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 	float4 colour = saturate(diffuse * intensity);
 	return colour;
 }
+=======
+>>>>>>> parent of 6143710... bump mapping works!!!!
 
 
 float4 main(InputType input) : SV_TARGET
 {
+<<<<<<< HEAD
 	float3 normalMap = textureBump.Sample(Sampler0, input.tex).rgb;	
 
 	float3 newNormal = reCalculateNormal(normalMap, input.normal, input.tangent);
@@ -117,5 +121,12 @@ float4 main(InputType input) : SV_TARGET
 
 	//colour = saturate(colour + ambient[0]);
 	return saturate(colour) * textureColour;
+=======
+	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	return texture0.Sample(Sampler0, input.tex);
+
+	
+
+>>>>>>> parent of 6143710... bump mapping works!!!!
 
 }

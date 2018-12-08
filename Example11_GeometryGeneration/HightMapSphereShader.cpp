@@ -32,11 +32,6 @@ HightMapSphereShader::~HightMapSphereShader()
 		layout->Release();
 		layout = 0;
 	}
-	if (lightBuffer)
-	{
-		lightBuffer->Release();
-		lightBuffer = 0;
-	}
 
 	//Release base shader components
 	BaseShader::~BaseShader();
@@ -47,7 +42,6 @@ void HightMapSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC tessellationBufferDesc;
-	D3D11_BUFFER_DESC lightBufferDesc;
 
 	// Load (+ compile) shader files
 	customeLoad(vsFilename);
@@ -81,16 +75,6 @@ void HightMapSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
-
-
-
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
-	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
 }
 
@@ -165,7 +149,7 @@ void HightMapSphereShader::customeLoad(WCHAR* filename)
 }
 
 
-void HightMapSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1, Light* light)
+void HightMapSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -189,18 +173,6 @@ void HightMapSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContex
 
 	deviceContext->DSSetShaderResources(0, 1, &texture);
 	deviceContext->DSSetSamplers(0, 1, &sampleState);
-
-
-	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->ambient = light->getAmbientColour();
-	lightPtr->diffuse = light->getDiffuseColour();
-	lightPtr->direction = light->getDirection();
-	lightPtr->padding = 0;
-
-	deviceContext->Unmap(lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
-
 
 }
 
