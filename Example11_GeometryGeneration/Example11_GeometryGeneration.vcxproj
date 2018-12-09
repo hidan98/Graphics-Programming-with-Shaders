@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp" />
+    <ClCompile Include="ColourExtractSphereShader.cpp" />
     <ClCompile Include="CombineShader.cpp" />
     <ClCompile Include="CustomSphereMesh.cpp" />
     <ClCompile Include="DepthShader.cpp" />
@@ -168,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
+    <ClInclude Include="ColourExtractSphereShader.h" />
     <ClInclude Include="CombineShader.h" />
     <ClInclude Include="CustomSphereMesh.h" />
     <ClInclude Include="DepthShader.h" />

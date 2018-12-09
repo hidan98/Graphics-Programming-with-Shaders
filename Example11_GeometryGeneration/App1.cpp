@@ -105,7 +105,7 @@ void App1::extractLight()
 
 	// Render floor
 	plane->sendData(renderer->getDeviceContext());
-	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bricks"), light[0]);
+	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bricks"), light);
 	extractShader->render(renderer->getDeviceContext(), plane->getIndexCount());
 
 	
@@ -113,8 +113,13 @@ void App1::extractLight()
 	// Render shape with simple lighting shader set.
 	worldMatrix = XMMatrixTranslation(0.f, 7.f, 0.f);
 	cube->sendData(renderer->getDeviceContext());
-	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light[0]);
+	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light);
 	extractShader->render(renderer->getDeviceContext(), cube->getIndexCount());
+
+	/*worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	tesselatedCube->sendData*/
+
 	
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.

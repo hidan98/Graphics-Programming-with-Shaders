@@ -12,7 +12,7 @@ public:
 	ExtractLightShader(ID3D11Device* device, HWND hwnd);
 	~ExtractLightShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light[2]);
 
 
 private:
@@ -22,9 +22,9 @@ private:
 
 	struct LightBufferType
 	{
-		XMFLOAT4 diffuse;
-		XMFLOAT3 direction;
-		float padding;
+		XMFLOAT4 ambient[2];
+		XMFLOAT4 diffuse[2];
+		XMFLOAT4 direction[2];
 	};
 
 private:

@@ -1,13 +1,13 @@
-#include "ExtractLightShader.h"
+#include "ColourExtractSphereShader.h"
 
 
-ExtractLightShader::ExtractLightShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+ColourExtractSphereShader::ColourExtractSphereShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	initShader(L"Extract_vs.cso", L"Extract_ps.cso");
 }
 
 
-ExtractLightShader::~ExtractLightShader()
+ColourExtractSphereShader::~ColourExtractSphereShader()
 {
 	// Release the sampler state.
 	if (sampleState)
@@ -39,7 +39,7 @@ ExtractLightShader::~ExtractLightShader()
 	BaseShader::~BaseShader();
 }
 
-void ExtractLightShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
+void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -93,7 +93,7 @@ void ExtractLightShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 
 
-void ExtractLightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light[2])
+void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -117,17 +117,10 @@ void ExtractLightShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 
 
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
-	for (int i = 0; i < 2; i++)
-	{
-		lightPtr->ambient[i] = light[i]->getAmbientColour();
-		lightPtr->diffuse[i] = light[i]->getDiffuseColour();
-		lightPtr->direction[i].x = light[i]->getDirection().x;
-		lightPtr->direction[i].y = light[i]->getDirection().y;
-		lightPtr->direction[i].z = light[i]->getDirection().z;
-		lightPtr->direction[i].w = 0.0f;
-	}
-	
+	LightBufferType* ligthPtr = (LightBufferType*)mappedResource.pData;
+	ligthPtr->diffuse = light->getDiffuseColour();
+	ligthPtr->direction = light->getDirection();
+	ligthPtr->padding = 0;
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 
 	// Set shader texture and sampler resource in the pixel shader.
