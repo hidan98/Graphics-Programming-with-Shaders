@@ -29,47 +29,6 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 	return colour;
 }
 
-float4 dostuff(float4 lightPos, float3 lightDirrection, float4 diffuse, float3 normal, float4 ambientLight, Texture2D depth, float4 textureColour)
-{
-	
-	float lightDepthValue;
-	float shadowMapBias = 0.005f;
-
-
-	float4 colour = float4(0.f, 0.f, 0.f, 1.f);
-	// Calculate the projected texture coordinates.
-	float2 pTexCoord = lightPos.xy / lightPos.w;
-	pTexCoord *= float2(0.5, -0.5);
-	pTexCoord += float2(0.5f, 0.5f);
-
-	// Determine if the projected coordinates are in the 0 to 1 range.  If not don't do lighting.
-	if (pTexCoord.x < 0.f || pTexCoord.x > 1.f || pTexCoord.y < 0.f || pTexCoord.y > 1.f)
-	{	
-		//return colour;
-		//colour += calculateLighting(-lightDirrection, normal, diffuse);
-		//colour = saturate(colour + ambientLight);
-		return float4(0.f, 0.f, 1.f, 1.f);
-	}
-
-	float depthValue = depth.Sample(shadowSampler, pTexCoord).r;
-		
-	// Calculate the depth from the light.
-	lightDepthValue = lightPos.z / lightPos.w;
-	lightDepthValue -= shadowMapBias;
-
-	// Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
-	if ((lightDepthValue < depthValue))
-	{
-		
-		//return float4(0.0f, 0.0f, 0.0f, 1.0f);
-		colour = calculateLighting(-lightDirrection, normal, diffuse);
-		
-
-	}
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
-//	return float4(0.0f, 0.0f, 0.0f, 1.0f);
-	return colour = saturate(colour + ambientLight);
-}
 
 
 float4 main(InputType input) : SV_TARGET
@@ -103,7 +62,7 @@ float4 main(InputType input) : SV_TARGET
 	if (lightDepthValue < depthValue)
 	{
 
-		colour = calculateLighting(-direction[0], input.normal, diffuse[0]);
+		colour += calculateLighting(-direction[0], input.normal, diffuse[0]);
 	}
 
 	colour = saturate(colour + ambient[0]);

@@ -18,12 +18,18 @@ cbuffer LightBuffer : register(b0)
 	float4 direction[2];
 };
 
+cbuffer brightBuffer : register(b1)
+{
+	float bright;
+	float3 padding;
+}
+
 float4 brightTest(float4 colour)
 {
 	float4 returnBright;
 
 	float Pixelbrightness = dot(colour.rgb, float3(0.2126, 0.7152, 0.0722));
-	if (Pixelbrightness > 0.5f)
+	if (Pixelbrightness > bright)
 	{
 		return returnBright = float4(colour.rgb, 1.0);
 	}

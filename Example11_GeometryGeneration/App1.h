@@ -20,6 +20,8 @@
 #include "SphereShadow.h"
 #include "SphereDepth.h"
 #include "ColourExtractSphereShader.h"
+#include "WibbleCubeExtract.h"
+
 struct matrixInfo
 {
 	XMMATRIX lightViewMatrix;
@@ -75,6 +77,7 @@ private:
 	SphereShadow* sphereShadow;
 	SphereDepth* sphereDepth;
 	ColourExtractSphereShader* sphereExtract;
+	WibbleCubeExtract* wibbleExtract;
 
 	CubeMesh* cube;
 	PlaneMesh* plane;
@@ -119,10 +122,13 @@ private:
 	
 	Light* light[2];
 
-
+	float colour[4];
+	float colour1[4];
+	float colourAmbiant[4];
+	float colourAmbiant1[4];
 	OrthoMesh* orthoMeshBlur;
 
-
+	float brightThreshHold;
 	int times;
 };
 

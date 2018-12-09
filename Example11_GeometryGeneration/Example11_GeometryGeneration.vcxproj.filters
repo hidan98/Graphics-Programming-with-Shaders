@@ -16,6 +16,12 @@
     <Filter Include="Resource Files\sphere stuff">
       <UniqueIdentifier>{69e0cfb8-363c-4cce-98b7-cd8b4d61e185}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Blur">
+      <UniqueIdentifier>{45a852e2-405b-4732-b3e8-ab2b193b4810}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\depth">
+      <UniqueIdentifier>{d0133442-0667-4392-bc15-2f5d6dd33713}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp">
@@ -27,16 +33,10 @@
     <ClCompile Include="GeometryShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DepthShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ShadowShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TesselatedDepthShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TesselatedCube.cpp">
@@ -70,6 +70,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ColourExtractSphereShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthShader.cpp">
+      <Filter>Source Files\depth</Filter>
+    </ClCompile>
+    <ClCompile Include="TesselatedDepthShader.cpp">
+      <Filter>Source Files\depth</Filter>
+    </ClCompile>
+    <ClCompile Include="WibbleCubeExtract.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,6 +134,9 @@
     <ClInclude Include="ColourExtractSphereShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WibbleCubeExtract.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="triangle_gs.hlsl">
@@ -178,18 +190,6 @@
     <FxCompile Include="sphere_ds.hlsl">
       <Filter>Resource Files\sphere stuff</Filter>
     </FxCompile>
-    <FxCompile Include="VerticalBlur_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="VerticalBlur_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="HorizontalBlur_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="HorizontalBlur_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="Extract_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
@@ -207,6 +207,18 @@
     </FxCompile>
     <FxCompile Include="SphereBrightExtrac_ps.hlsl">
       <Filter>Resource Files\sphere stuff</Filter>
+    </FxCompile>
+    <FxCompile Include="HorizontalBlur_ps.hlsl">
+      <Filter>Resource Files\Blur</Filter>
+    </FxCompile>
+    <FxCompile Include="HorizontalBlur_vs.hlsl">
+      <Filter>Resource Files\Blur</Filter>
+    </FxCompile>
+    <FxCompile Include="VerticalBlur_ps.hlsl">
+      <Filter>Resource Files\Blur</Filter>
+    </FxCompile>
+    <FxCompile Include="VerticalBlur_vs.hlsl">
+      <Filter>Resource Files\Blur</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

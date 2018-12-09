@@ -35,6 +35,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	sphereShadow = new SphereShadow(renderer->getDevice(), hwnd);
 	sphereDepth = new SphereDepth(renderer->getDevice(), hwnd);
 	sphereExtract = new ColourExtractSphereShader(renderer->getDevice(), hwnd);
+	wibbleExtract = new WibbleCubeExtract(renderer->getDevice(), hwnd);
+
 
 	int shadowmapWidth = 2048 * 2;
 	int shadowmapHeight = 2048 *2;
@@ -44,8 +46,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	
 	shadowInfo_ = new shadowInfo;
 	light[0] = new Light;
-	light[0]->setAmbientColour(0.3f, 0.f, 0.f, 1.0f);
-	light[0]->setDiffuseColour(1.0f, 1.f, 1.0f, 1.0f);
+	light[0]->setAmbientColour(0.0f, 0.f, 0.f, 1.0f);
+	light[0]->setDiffuseColour(0.0f, 6.f, 0.0f, 1.0f);
 	light[0]->setDirection(1.0f, -0.2f, 0.7f);
 	light[0]->setPosition(0.f, 0.f, -10.f);
 	light[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
@@ -53,7 +55,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	light[1] = new Light;
 	light[1]->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
-	light[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	light[1]->setDiffuseColour(0.0f, 0.0f, 0.0f, 1.0f);
 	light[1]->setDirection(0.0f, -1.f, 0.01f);
 	light[1]->setPosition(0.f, 10.f, -10.f);
 	light[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
@@ -106,7 +108,7 @@ void App1::extractLight()
 
 	// Render floor
 	plane->sendData(renderer->getDeviceContext());
-	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bricks"), light);
+	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bricks"), light, brightThreshHold);
 	extractShader->render(renderer->getDeviceContext(), plane->getIndexCount());
 
 	
@@ -114,29 +116,28 @@ void App1::extractLight()
 	// Render shape with simple lighting shader set.
 	worldMatrix = XMMatrixTranslation(0.f, 7.f, 0.f);
 	cube->sendData(renderer->getDeviceContext());
-	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light);
+	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, brightThreshHold);
 	extractShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
 
 
 	worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
 	sphere->sendData(renderer->getDeviceContext());
-	sphereExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normalMap"), light);
+	sphereExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normalMap"), light, brightThreshHold);
 	sphereExtract->render(renderer->getDeviceContext(), sphere->getIndexCount());
-	/*worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
-	tesselatedCube->sendData*/
 
-	
+
+	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	tesselatedCube->sendData(renderer->getDeviceContext());
+	wibbleExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, brightThreshHold);
+	wibbleExtract->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
+		
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	renderer->setBackBufferRenderTarget();
 }
 
-void App1::renderNormal()
-{
 
-}
 
 
 void App1::depthPass()
@@ -174,14 +175,7 @@ void App1::depthPass()
 		plane->sendData(renderer->getDeviceContext());
 		depthShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 		depthShader->render(renderer->getDeviceContext(), plane->getIndexCount());
-
-
-
-		//worldMatrix = renderer->getWorldMatrix();
-		//worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
-		////XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-		////matrixInfo_.worldMatrix = XMMatrixMultiply(matrixInfo_.worldMatrix, scaleMatrix);
-
+		
 
 		// Render model
 		worldMatrix = renderer->getWorldMatrix();
@@ -215,6 +209,7 @@ void App1::depthPass()
 
 void App1::shadowPass()
 {
+
 	texture->setRenderTarget(renderer->getDeviceContext());
 	texture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -427,6 +422,12 @@ bool App1::frame()
 		return false;
 	}
 
+
+	/*light[0]->setDiffuseColour(colour[0], colour[1], colour[2], colour[3]);
+	light[1]->setDiffuseColour(colour1[0], colour1[1], colour1[2], colour1[3]);
+	light[0]->setAmbientColour(colour1[0], colourAmbiant[1], colourAmbiant[2], colourAmbiant[3]);
+	light[1]->setAmbientColour(colour1[0], colourAmbiant1[1], colourAmbiant1[2], colourAmbiant1[3]);*/
+
 	return true;
 }
 
@@ -454,14 +455,14 @@ void App1::gui()
 		ImGui::Text("FPS: %.2f", timer->getFPS());
 		ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 
-		if (ImGui::TreeNode("Angular"))
-		{
+		//if (ImGui::TreeNode("Angular"))
+		//{
 			ImGui::SliderFloat("amplitude[0]", &amplitude[0], 0, 5.0f);
 			ImGui::SliderFloat("amplitude[1]", &amplitude[1], 0, 5.0f);
 			ImGui::SliderFloat("angularWave[0]", &angularWave[0], 0, 20);
 			ImGui::SliderFloat("angularWave[1]", &angularWave[1], 0, 20);
-			ImGui::TreePop();
-		}
+			
+		//}
 
 		ImGui::SliderFloat("angularFrequency[0]", &angularFrequency[0], 0, 20);
 		ImGui::SliderFloat("angularFrequency[1]", &angularFrequency[1], 0, 20);
@@ -470,8 +471,15 @@ void App1::gui()
 		ImGui::SliderFloat("phaseShift[1]", &phaseShift[1], 0, 5);
 
 		ImGui::InputInt("numebr of blurs", &times);
-
+		ImGui::SliderFloat("bloom Treshhold", &brightThreshHold, 0, 1);
 		ImGui::Checkbox("Stop time", &stopTime);
+
+		ImGui::ColorPicker4("Color", colour);
+		ImGui::ColorPicker4("Color1", colour1);
+		ImGui::ColorPicker4("colourAmbiant", colourAmbiant);
+		ImGui::ColorPicker4("colourAmbiant1", colourAmbiant1);
+
+		//ImGui::TreePop();
 	}
 
 	// Render UI

@@ -1,13 +1,12 @@
-#include "ExtractLightShader.h"
+#include "WibbleCubeExtract.h"
 
-
-ExtractLightShader::ExtractLightShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+WibbleCubeExtract::WibbleCubeExtract(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"Extract_vs.cso", L"Extract_ps.cso");
+	initShader(L"tessellation_vs.cso", L"tessellation_hs.cso", L"tessellation_ds.cso", L"triangle_gs.cso", L"Extract_ps.cso");
 }
 
 
-ExtractLightShader::~ExtractLightShader()
+WibbleCubeExtract::~WibbleCubeExtract()
 {
 	// Release the sampler state.
 	if (sampleState)
@@ -44,13 +43,14 @@ ExtractLightShader::~ExtractLightShader()
 	BaseShader::~BaseShader();
 }
 
-void ExtractLightShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
+void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC tessellationBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 	D3D11_BUFFER_DESC brigthBufferDesc;
+
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -102,11 +102,22 @@ void ExtractLightShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	brigthBufferDesc.MiscFlags = 0;
 	brigthBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&brigthBufferDesc, NULL, &brightBuffer);
+
 }
 
 
+void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* dsFilename, WCHAR* gsFilename,  WCHAR* psFilename)
+{
+	// InitShader must be overwritten and it will load both vertex and pixel shaders + setup buffers
+	initShader(vsFilename, psFilename);
 
-void ExtractLightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light[2], float brightness)
+	// Load other required shaders.
+	loadHullShader(hsFilename);
+	loadDomainShader(dsFilename);
+	loadGeometryShader(gsFilename);
+}
+
+void WibbleCubeExtract::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light[2], float brightness)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -126,21 +137,21 @@ void ExtractLightShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->view = tview;
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
-
+	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
+	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
 
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
+	LightBufferType* ligthPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
 	{
-		lightPtr->ambient[i] = light[i]->getAmbientColour();
-		lightPtr->diffuse[i] = light[i]->getDiffuseColour();
-		lightPtr->direction[i].x = light[i]->getDirection().x;
-		lightPtr->direction[i].y = light[i]->getDirection().y;
-		lightPtr->direction[i].z = light[i]->getDirection().z;
-		lightPtr->direction[i].w = 0.0f;
+		ligthPtr->ambient[i] = light[i]->getAmbientColour();
+		ligthPtr->diffuse[i] = light[i]->getDiffuseColour();
+		ligthPtr->direction[i].x = light[i]->getDirection().x;
+		ligthPtr->direction[i].y = light[i]->getDirection().y;
+		ligthPtr->direction[i].z = light[i]->getDirection().z;
+		ligthPtr->direction[i].w = 1.0f;
 	}
-	
+	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 
 	// Set shader texture and sampler resource in the pixel shader.

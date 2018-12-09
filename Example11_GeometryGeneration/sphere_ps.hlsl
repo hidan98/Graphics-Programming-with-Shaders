@@ -82,7 +82,7 @@ float4 doShadow(InputType input, float3 newNormal)
 		if (lightDepthValue < depthValue)
 		{
 
-			colour = calculateLighting(-direction[i], newNormal, diffuse[i]);
+			colour += calculateLighting(-direction[i], newNormal, diffuse[i]);
 		}
 
 		colour = saturate(colour + ambient[i]);
@@ -100,16 +100,10 @@ float4 main(InputType input) : SV_TARGET
 	float3 newNormal = reCalculateNormal(normalMap, input.normal, input.tangent);
 
 	float4 textureColour = texture0.Sample(Sampler0, input.tex);
-
-	float depthValue;
-	float lightDepthValue;
-	float shadowMapBias = 0.005f;
+	
 	float4 colour = float4(0.f, 0.f, 0.f, 1.f);
 
 	colour = doShadow(input, newNormal);
-	
-	
-
 	
 	return colour * textureColour;
 

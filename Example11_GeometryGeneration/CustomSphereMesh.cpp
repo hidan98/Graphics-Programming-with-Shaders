@@ -34,11 +34,6 @@ void CustomSphereMesh::initBuffers(ID3D11Device * device)
 
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 
-	/*vertexCount = 24;
-	indexCount = 24;*/
-
-	//VertexType* vertices = new VertexType[vertexCount];
-//	unsigned long* indices = new unsigned long[indexCount];
 
 
 	float texInc = (1.f / seg);

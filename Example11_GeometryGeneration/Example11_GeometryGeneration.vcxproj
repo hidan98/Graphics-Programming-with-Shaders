@@ -166,6 +166,7 @@
     <ClCompile Include="TesselatedShadowShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="VerticalBlurShader.cpp" />
+    <ClCompile Include="WibbleCubeExtract.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="TesselatedShadowShader.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="VerticalBlurShader.h" />
+    <ClInclude Include="WibbleCubeExtract.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="combine_ps.hlsl">

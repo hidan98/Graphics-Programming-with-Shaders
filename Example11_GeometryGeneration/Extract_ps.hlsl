@@ -18,6 +18,12 @@ cbuffer LightBuffer : register(b0)
 	float4 direction[2];
 };
 
+cbuffer brightBuffer : register(b1)
+{
+	float bright;
+	float3 padding;
+}
+
 // Calculate lighting intensity based on direction and normal. Combine with light colour.
 float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
@@ -45,7 +51,7 @@ float4 main(InputType input) : SV_TARGET
 
 
 	float Pixelbrightness = dot(colour.rgb, float3(0.2126, 0.7152, 0.0722));
-	if (Pixelbrightness > 0.5f)
+	if (Pixelbrightness > bright)
 	{
 		return returnBright = float4(colour.rgb, 1.0);
 	}

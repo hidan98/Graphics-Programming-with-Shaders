@@ -34,6 +34,11 @@ ColourExtractSphereShader::~ColourExtractSphereShader()
 		lightBuffer->Release();
 		lightBuffer = 0;
 	}
+	if (brightBuffer)
+	{
+		brightBuffer->Release();
+		brightBuffer = 0;
+	}
 
 	//Release base shader components
 	BaseShader::~BaseShader();
@@ -45,6 +50,8 @@ void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC tessellationBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC brigthBufferDesc;
+
 
 	// Load (+ compile) shader files
 	customeLoad(vsFilename);
@@ -88,6 +95,14 @@ void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
+
+	brigthBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	brigthBufferDesc.ByteWidth = sizeof(BrightnessBufferType);
+	brigthBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	brigthBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	brigthBufferDesc.MiscFlags = 0;
+	brigthBufferDesc.StructureByteStride = 0;
+	renderer->CreateBuffer(&brigthBufferDesc, NULL, &brightBuffer);
 
 }
 void ColourExtractSphereShader::customeLoad(WCHAR* filename)
@@ -160,7 +175,7 @@ void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* hsFilename,
 	loadDomainShader(dsFilename);
 }
 
-void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normal, Light* light[2])
+void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normal, Light* light[2], float brightness)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -194,6 +209,7 @@ void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceC
 		ligthPtr->direction[i].z = light[i]->getDirection().z;
 		ligthPtr->direction[i].w = 1.0f;
 	}
+	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 
 	// Set shader texture and sampler resource in the pixel shader.
@@ -201,7 +217,12 @@ void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceC
 	deviceContext->PSSetShaderResources(1, 1, &normal);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 
-
+	deviceContext->Map(brightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	BrightnessBufferType* brightPtr = (BrightnessBufferType*)mappedResource.pData;
+	brightPtr->bright = brightness;
+	brightPtr->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	deviceContext->Unmap(lightBuffer, 0);
+	deviceContext->PSSetConstantBuffers(1, 1, &brightBuffer);
 }
 
 

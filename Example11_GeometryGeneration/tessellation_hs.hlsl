@@ -66,13 +66,12 @@ OutputType main(InputPatch<InputType, 4> patch, uint pointId : SV_OutputControlP
 
 	//repack the data
 
-    // Set the position for this control point as the output position.
+  
     output.position = patch[pointId].position;
 
 	output.tex = patch[pointId].tex;
 	output.normal = patch[pointId].normal;
-    // Set the input colour as the output colour.
-    //output.colour = patch[pointId].colour;
+    
 
     return output;
 }
