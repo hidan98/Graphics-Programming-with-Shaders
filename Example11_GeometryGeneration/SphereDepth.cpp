@@ -1,9 +1,9 @@
 #include "SphereDepth.h"
-#include <d3dcompiler.h>
+#include "App1.h"
 
 SphereDepth::SphereDepth(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"sphere_vs.cso", L"sphere_hs.cso", L"ShadowSphere_ds.cso", L"depth_ps.cso");
+	initShader(L"sphere_vs.cso", L"sphere_hs.cso", L"sphereDepth_ds.cso", L"depth_ps.cso");
 }
 
 
@@ -75,7 +75,7 @@ void SphereDepth::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	dataPtr->view = tview;
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
-	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
+	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 }
 
 

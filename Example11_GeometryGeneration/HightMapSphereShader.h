@@ -14,7 +14,7 @@ public:
 	HightMapSphereShader(ID3D11Device* device, HWND hwnd);
 	~HightMapSphereShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1, Light* light[2]);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1, Light* light);
 
 
 private:
@@ -25,9 +25,10 @@ private:
 
 	struct LightBufferType
 	{
-		XMFLOAT4 ambient[2];
-		XMFLOAT4 diffuse[2];
-		XMFLOAT4 direction[2];
+		XMFLOAT4 ambient;
+		XMFLOAT4 diffuse;
+		XMFLOAT3 direction;
+		float padding;
 	};
 
 private:

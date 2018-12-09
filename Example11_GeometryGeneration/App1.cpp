@@ -43,16 +43,16 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	
 	shadowInfo_ = new shadowInfo;
 	light[0] = new Light;
-	light[0]->setAmbientColour(0.f, 0.f, 0.f, 1.0f);
-	light[0]->setDiffuseColour(1.0f, 0.f, 0.0f, 1.0f);
+	light[0]->setAmbientColour(0.3f, 0.3f, 0.3f, 1.0f);
+	light[0]->setDiffuseColour(1.0f, 1.0f, 0.0f, 1.0f);
 	light[0]->setDirection(1.0f, -0.2f, 0.7f);
 	light[0]->setPosition(0.f, 0.f, -10.f);
 	light[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
 	//shadowInfo_->light[0]->generateViewMatrix();
 
 	light[1] = new Light;
-	light[1]->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
-	light[1]->setDiffuseColour(0.0f, 0.0f, 1.0f, 1.0f);
+	light[1]->setAmbientColour(0.30f, 0.30f, 0.30f, 1.0f);
+	light[1]->setDiffuseColour(0.0f, 0.0f, 5.0f, 1.0f);
 	light[1]->setDirection(0.0f, -1.f, 0.01f);
 	light[1]->setPosition(0.f, 10.f, -10.f);
 	light[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
@@ -146,7 +146,7 @@ void App1::depthPass()
 	{
 
 		shadowInfo_->shadowMap[i]->setRenderTarget(renderer->getDeviceContext());
-		shadowInfo_->shadowMap[i]->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
+		shadowInfo_->shadowMap[i]->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
 		
 
 
@@ -191,7 +191,7 @@ void App1::depthPass()
 		depthShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
 
-		worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
+		worldMatrix = XMMatrixTranslation(0.f, 7.0f, 1.f);
 		sphere->sendData(renderer->getDeviceContext());
 		sphereDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 		sphereDepth->render(renderer->getDeviceContext(), sphere->getIndexCount());
@@ -242,19 +242,19 @@ void App1::shadowPass()
 	shadowShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
 
-	/*
+	
 
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(0.f, 7.0f, 1.f);
 	sphere->sendData(renderer->getDeviceContext());
 	sphereShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), textureMgr->getTexture("normal"));
-	sphereShadow->render(renderer->getDeviceContext(), sphere->getIndexCount());*/
+	sphereShadow->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
+	worldMatrix = XMMatrixTranslation(0.0f, 10.0f, 10.0f);
 	sphere->sendData(renderer->getDeviceContext());
-	hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light);
+	hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light[0]);
 	hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
 
@@ -268,7 +268,7 @@ void App1::horizontalBlur()
 	float screenX = float(horizontalBlurTexture->getTextureHeight());
 	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 	horizontalBlurTexture->setRenderTarget(renderer->getDeviceContext());
-	horizontalBlurTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
+	horizontalBlurTexture->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 1.0f, 0.0f, 1.0f);
 
 	worldMatrix = renderer->getWorldMatrix();
 	baseViewMatrix = camera->getOrthoViewMatrix();
@@ -292,7 +292,7 @@ void App1::verticalBlur()
 
 	float screenY = (float)verticalBlurTexture->getTextureHeight();
 	verticalBlurTexture->setRenderTarget(renderer->getDeviceContext());
-	verticalBlurTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
+	verticalBlurTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 1.0f, 1.0f, 1.0f);
 
 	worldMatrix = renderer->getWorldMatrix();
 	baseViewMatrix = camera->getOrthoViewMatrix();
@@ -325,7 +325,7 @@ void App1::combinePass()
 {
 
 	bloomTexture->setRenderTarget(renderer->getDeviceContext());
-	bloomTexture->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+	bloomTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 1.0f, 1.0f, 1.0f);
 
 	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 	worldMatrix = renderer->getWorldMatrix();

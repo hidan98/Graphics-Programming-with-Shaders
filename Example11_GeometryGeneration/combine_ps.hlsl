@@ -17,8 +17,7 @@ struct InputType
 float4 main(InputType input) : SV_TARGET
 {
 	float4 textureColour;
-	textureColour =  lerp(texture0.Sample(Sampler0, input.tex), texture1.Sample(Sampler0, input.tex), 0.5f);
-
-	return textureColour;
+	textureColour = texture0.Sample(Sampler0, input.tex);
+	return textureColour += texture1.Sample(Sampler0, input.tex);
 
 }

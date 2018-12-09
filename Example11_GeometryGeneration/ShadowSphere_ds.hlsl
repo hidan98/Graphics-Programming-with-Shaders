@@ -8,6 +8,11 @@ cbuffer MatrixBuffer : register(b0)
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
+cbuffer lightMatrixBuffer:register (b1)
+{
+	matrix lightViewMatrix[2];
+	matrix lightProjectionMatrix[2];
+}
 
 struct ConstantOutputType
 {
@@ -17,7 +22,7 @@ struct ConstantOutputType
 
 struct InputType
 {
-	float4 position : POSITION;
+	float3 position : POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
@@ -26,26 +31,61 @@ struct InputType
 struct OutputType
 {
 	float4 position : SV_POSITION;
-	float4 depth : TEXCOORD0;
+	float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float4 lightViewPos[2] : TEXCOORD1;
 
 };
 
 [domain("quad")]
 OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, const OutputPatch<InputType, 4> patch)
 {
-	float4 vertexPosition;
+	float3 vertexPosition;
 	OutputType output;
 
 	//calculate the actual position of the vertex
-	float4 v1 = lerp(patch[0].position, patch[1].position, uvwCoord.y);
-	float4 v2 = lerp(patch[3].position, patch[2].position, uvwCoord.y);
+	float3 v1 = lerp(patch[0].position, patch[1].position, uvwCoord.y);
+	float3 v2 = lerp(patch[3].position, patch[2].position, uvwCoord.y);
 	vertexPosition = lerp(v1, v2, uvwCoord.x);
-		
 
-	output.position = mul(vertexPosition, worldMatrix);
+	// Calculate the position of the vertex against the world, view, and projection matrices.
+
+
+	//calculate the normal 
+	float3 test1 = lerp(patch[0].normal, patch[1].normal, uvwCoord.y);
+	float3 test2 = lerp(patch[3].normal, patch[2].normal, uvwCoord.y);
+	output.normal = lerp(test1, test2, uvwCoord.x);
+
+	output.normal = mul(output.normal, (float3x3)worldMatrix);
+	output.normal = normalize(output.normal);
+
+	float2 tex1 = lerp(patch[0].tex, patch[1].tex, uvwCoord.y);
+	float2 tex2 = lerp(patch[3].tex, patch[2].tex, uvwCoord.y);
+	output.tex = lerp(tex1, tex2, uvwCoord.x);
+
+
+
+	float3 tan1 = lerp(patch[0].tangent, patch[1].tangent, uvwCoord.y);
+	float3 tan2 = lerp(patch[3].tangent, patch[2].tangent, uvwCoord.y);
+	output.tangent = lerp(tan1, tan1, uvwCoord.x);
+
+	output.tangent = mul(output.tangent, (float3x3)worldMatrix);
+	output.tangent = normalize(output.tangent);
+
+
+	//vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) * 2;
+	for (int i = 0; i < 2; i++)
+	{
+		output.lightViewPos[i] = mul(vertexPosition, worldMatrix);
+		output.lightViewPos[i] = mul(output.lightViewPos[i], lightViewMatrix[i]);
+		output.lightViewPos[i] = mul(output.lightViewPos[i], lightProjectionMatrix[i]);
+	}
+
+
+	output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
-	output.depth = vertexPosition;
 	return output;
 }
 
