@@ -165,7 +165,7 @@ void HightMapSphereShader::customeLoad(WCHAR* filename)
 }
 
 
-void HightMapSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1, Light* light)
+void HightMapSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1, Light* light[2])
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -193,10 +193,16 @@ void HightMapSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContex
 
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->ambient = light->getAmbientColour();
-	lightPtr->diffuse = light->getDiffuseColour();
-	lightPtr->direction = light->getDirection();
-	lightPtr->padding = 0;
+	for (int i = 0; i < 2; i++)
+	{
+		lightPtr->ambient[i] = light[i]->getAmbientColour();
+		lightPtr->diffuse[i] = light[i]->getDiffuseColour();
+		lightPtr->direction[i].x = light[i]->getDirection().x;
+		lightPtr->direction[i].y = light[i]->getDirection().y;
+		lightPtr->direction[i].z = light[i]->getDirection().z;
+		lightPtr->direction[i].w = 0;
+	}
+	
 
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
