@@ -205,5 +205,8 @@
     <FxCompile Include="sphereDepth_ds.hlsl">
       <Filter>Resource Files\sphere stuff</Filter>
     </FxCompile>
+    <FxCompile Include="SphereBrightExtrac_ps.hlsl">
+      <Filter>Resource Files\sphere stuff</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

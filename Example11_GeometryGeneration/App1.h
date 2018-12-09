@@ -19,6 +19,7 @@
 #include "CombineShader.h"
 #include "SphereShadow.h"
 #include "SphereDepth.h"
+#include "ColourExtractSphereShader.h"
 struct matrixInfo
 {
 	XMMATRIX lightViewMatrix;
@@ -73,6 +74,7 @@ private:
 	HightMapSphereShader* hightShader;
 	SphereShadow* sphereShadow;
 	SphereDepth* sphereDepth;
+	ColourExtractSphereShader* sphereExtract;
 
 	CubeMesh* cube;
 	PlaneMesh* plane;

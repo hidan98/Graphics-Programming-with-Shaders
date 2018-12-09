@@ -101,7 +101,7 @@ void SphereShadow::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 }
 
-void SphereShadow::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* dsFilename, WCHAR* psFilename)
+void SphereShadow::initShader(WCHAR* vsFilename, WCHAR* dsFilename , WCHAR* hsFilename, WCHAR* psFilename)
 {
 	// InitShader must be overwritten and it will load both vertex and pixel shaders + setup buffers
 	initShader(vsFilename, psFilename);

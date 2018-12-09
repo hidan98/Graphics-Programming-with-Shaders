@@ -43,7 +43,7 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	vertexPosition = lerp(v1, v2, uvwCoord.x);
 
 
-	output.position = mul(float4(vertexPosition, 0.0f), worldMatrix);
+	output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 

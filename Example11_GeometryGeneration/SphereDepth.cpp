@@ -3,7 +3,7 @@
 
 SphereDepth::SphereDepth(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"sphere_vs.cso", L"sphere_hs.cso", L"ShadowSphere_ds.cso", L"depth_ps.cso");
+	initShader(L"sphere_vs.cso", L"sphere_hs.cso", L"sphereDepth_ds.cso", L"depth_ps.cso");
 }
 
 

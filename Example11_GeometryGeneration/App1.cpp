@@ -34,6 +34,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	hightShader = new HightMapSphereShader(renderer->getDevice(), hwnd);
 	sphereShadow = new SphereShadow(renderer->getDevice(), hwnd);
 	sphereDepth = new SphereDepth(renderer->getDevice(), hwnd);
+	sphereExtract = new ColourExtractSphereShader(renderer->getDevice(), hwnd);
 
 	int shadowmapWidth = 2048 * 2;
 	int shadowmapHeight = 2048 *2;
@@ -43,8 +44,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	
 	shadowInfo_ = new shadowInfo;
 	light[0] = new Light;
-	light[0]->setAmbientColour(0.f, 0.f, 0.f, 1.0f);
-	light[0]->setDiffuseColour(1.0f, 0.f, 0.0f, 1.0f);
+	light[0]->setAmbientColour(0.3f, 0.f, 0.f, 1.0f);
+	light[0]->setDiffuseColour(1.0f, 1.f, 1.0f, 1.0f);
 	light[0]->setDirection(1.0f, -0.2f, 0.7f);
 	light[0]->setPosition(0.f, 0.f, -10.f);
 	light[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
@@ -52,7 +53,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	light[1] = new Light;
 	light[1]->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
-	light[1]->setDiffuseColour(0.0f, 0.0f, 1.0f, 1.0f);
+	light[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	light[1]->setDirection(0.0f, -1.f, 0.01f);
 	light[1]->setPosition(0.f, 10.f, -10.f);
 	light[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
@@ -116,6 +117,12 @@ void App1::extractLight()
 	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light);
 	extractShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
+
+
+	worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
+	sphere->sendData(renderer->getDeviceContext());
+	sphereExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normalMap"), light);
+	sphereExtract->render(renderer->getDeviceContext(), sphere->getIndexCount());
 	/*worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
 	tesselatedCube->sendData*/
@@ -242,13 +249,13 @@ void App1::shadowPass()
 	shadowShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
 
-	/*
+	
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixTranslation(0.f, 7.0f, 1.f);
+	worldMatrix = XMMatrixTranslation(0.f, 7.0f, 20.f);
 	sphere->sendData(renderer->getDeviceContext());
 	sphereShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), textureMgr->getTexture("normal"));
-	sphereShadow->render(renderer->getDeviceContext(), sphere->getIndexCount());*/
+	sphereShadow->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
 
 	worldMatrix = renderer->getWorldMatrix();
