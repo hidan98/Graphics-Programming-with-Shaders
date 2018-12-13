@@ -29,6 +29,11 @@ TesselatedShadowShader::~TesselatedShadowShader()
 		lightBuffer->Release();
 		lightBuffer = 0;
 	}
+	if (camBuffer)
+	{
+		camBuffer->Release();
+		camBuffer = 0;
+	}
 
 	//Release base shader components
 	BaseShader::~BaseShader();
@@ -45,6 +50,8 @@ void TesselatedShadowShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	D3D11_BUFFER_DESC TessellationBufferDesc;
 	D3D11_BUFFER_DESC TimeBufferDesc;
 	D3D11_BUFFER_DESC TimeBuffer1Desc;
+	D3D11_BUFFER_DESC camBufferDesc;
+
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -104,25 +111,30 @@ void TesselatedShadowShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
 
-
-
-
+	// Setup camera buffer
+	camBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	camBufferDesc.ByteWidth = sizeof(cameraBufferType);
+	camBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	camBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	camBufferDesc.MiscFlags = 0;
+	camBufferDesc.StructureByteStride = 0;
+	renderer->CreateBuffer(&camBufferDesc, NULL, &camBuffer);
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	TimeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	TimeBufferDesc.ByteWidth = sizeof(TimeBufferType);
+	TimeBufferDesc.ByteWidth = sizeof(WaveBufferType);
 	TimeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	TimeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	TimeBufferDesc.MiscFlags = 0;
 	TimeBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	renderer->CreateBuffer(&TimeBufferDesc, NULL, &timeBuffer);
+	renderer->CreateBuffer(&TimeBufferDesc, NULL, &waveBuffer);
 
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	TimeBuffer1Desc.Usage = D3D11_USAGE_DYNAMIC;
-	TimeBuffer1Desc.ByteWidth = sizeof(TimeBufferType);
+	TimeBuffer1Desc.ByteWidth = sizeof(timeBufferType);
 	TimeBuffer1Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	TimeBuffer1Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	TimeBuffer1Desc.MiscFlags = 0;
@@ -144,7 +156,7 @@ void TesselatedShadowShader::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WC
 	loadGeometryShader(gsFilename);
 }
 
-void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView*depthMap, ID3D11ShaderResourceView* depthMap1, Light* info_[2], float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[])
+void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView*depthMap, ID3D11ShaderResourceView* depthMap1, Light* info_[2], float time, float amplitude[], float Wave[], float angularFreq[], float phaseShift[], XMFLOAT3 camPos)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -167,9 +179,7 @@ void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceCont
 	
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
-	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
-	
-	
+	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);	
 
 	//Additional
 	// Send light data to pixel shader
@@ -194,41 +204,42 @@ void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceCont
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 	deviceContext->PSSetSamplers(1, 1, &sampleStateShadow);
 
+	//send camera pos
+	deviceContext->Map(camBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	cameraBufferType* camPtr = (cameraBufferType*)mappedResource.pData;
+	camPtr->cameraPosition = camPos;
+	camPtr->padding = 0;
+	deviceContext->Unmap(camBuffer, 0);
+	deviceContext->HSSetConstantBuffers(0, 1, &camBuffer);
 
-	// Lock the constant buffer so it can be written to.
-	deviceContext->Map(timeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	TimeBufferType* dataPtr4 = (TimeBufferType*)mappedResource.pData;
-	dataPtr4->time.x = time;
-	dataPtr4->time.y = time;
-	dataPtr4->time.z = time;
-	dataPtr4->time.w = time;
+	// set up info in wave buffer
+	deviceContext->Map(waveBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	WaveBufferType* wavePtr = (WaveBufferType*)mappedResource.pData;
+	wavePtr->time.x = time;
+	wavePtr->time.y = time;
+	wavePtr->time.z = time;
+	wavePtr->time.w = time;
 
-	dataPtr4->amplitude.x = amplitude[0];
-	dataPtr4->angularFrequency.x = angularFrequency[0];
-	dataPtr4->angularWave.x = angularWave[0];
-	dataPtr4->phaseShift.x = phaseShift[0];
+	wavePtr->height.x = amplitude[0];
+	wavePtr->frequency.x = angularFreq[0];
+	wavePtr->waveLenght.x = Wave[0];
+	wavePtr->shift.x = phaseShift[0];
 
-	dataPtr4->amplitude.y = amplitude[1];
-	dataPtr4->angularFrequency.y = angularFrequency[1];
-	dataPtr4->angularWave.y = angularWave[1];
-	dataPtr4->phaseShift.y = phaseShift[1];
+	wavePtr->height.y = amplitude[1];
+	wavePtr->frequency.y = angularFreq[1];
+	wavePtr->waveLenght.y = Wave[1];
+	wavePtr->shift.y = phaseShift[1];
 
-	dataPtr4->padding = XMFLOAT4(0.0f, 0, 0, 0);
-
-	deviceContext->Unmap(timeBuffer, 0);
-	deviceContext->DSSetConstantBuffers(1, 1, &timeBuffer);
-
-
-
-	// Set shader texture resource in the pixel shader.
+	deviceContext->Unmap(waveBuffer, 0);
+	deviceContext->DSSetConstantBuffers(1, 1, &waveBuffer);
 
 
 	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
 
 	deviceContext->Map(timeBuffer1, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	timeBuffer1Type* dataPtr99 = (timeBuffer1Type*)mappedResource.pData;
-	dataPtr99->time = time;
-	dataPtr99->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	timeBufferType* timePtr = (timeBufferType*)mappedResource.pData;
+	timePtr->time = time;
+	timePtr->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	deviceContext->Unmap(timeBuffer1, 0);
 	deviceContext->GSSetConstantBuffers(2, 1, &timeBuffer1);
 

@@ -30,20 +30,24 @@ private:
 		XMFLOAT4 direction[2];
 	};
 
-	struct TimeBufferType
-	{
+	struct WaveBufferType
+	{		
 		XMFLOAT4 time;
-		XMFLOAT2 amplitude;
-		XMFLOAT2 angularWave;
-		XMFLOAT2 angularFrequency;
-		XMFLOAT2 phaseShift;
-		XMFLOAT4 padding;
+		XMFLOAT2 height;
+		XMFLOAT2 waveLenght;
+		XMFLOAT2 frequency;
+		XMFLOAT2 shift;
 	};
 
-	struct timeBuffer1Type
+	struct timeBufferType
 	{
 		float time;
 		XMFLOAT3 padding;
+	};
+	struct cameraBufferType
+	{
+		XMFLOAT3 cameraPosition;
+		float padding;
 	};
 
 public:
@@ -51,7 +55,7 @@ public:
 	TesselatedShadowShader(ID3D11Device* device, HWND hwnd);
 	~TesselatedShadowShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView*depthMap, ID3D11ShaderResourceView* depthMap1, Light* info_[2], float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[]);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView*depthMap, ID3D11ShaderResourceView* depthMap1, Light* info_[2], float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[], XMFLOAT3 camPos);
 
 
 private:
@@ -66,9 +70,9 @@ private:
 	ID3D11Buffer* lightBuffer;
 
 	ID3D11Buffer* tessellationBuffer;
-	ID3D11Buffer* timeBuffer;
+	ID3D11Buffer* waveBuffer;
 	ID3D11Buffer* timeBuffer1;
-
+	ID3D11Buffer* camBuffer;
 
 	ID3D11Buffer* lightMatrixBuffer;
 };

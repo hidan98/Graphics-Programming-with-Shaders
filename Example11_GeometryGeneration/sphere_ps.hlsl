@@ -24,6 +24,7 @@ cbuffer LightBuffer : register(b0)
 
 float3 reCalculateNormal(float3 normalMap, float3 normal, float3 tangent)
 {
+	//makeing sure that the value is between -1 and 1
 	float3 noramlTan = (2.0f*normalMap) - 1.0f;
 
 	//build componants of tbn
@@ -31,10 +32,11 @@ float3 reCalculateNormal(float3 normalMap, float3 normal, float3 tangent)
 	float3 T = normalize(tangent - dot(tangent, N) * N);
 	float3 B = cross(N, T);
 
+	//create matrix
 	float3x3 TBN = float3x3(T, B, N);
-
+	//multiply the normal and tb together
 	float3 bumpNormal = mul(noramlTan, TBN);
-
+	//normalize the new normal
 	return normalize(bumpNormal);
 }
 
@@ -95,16 +97,17 @@ float4 doShadow(InputType input, float3 newNormal)
 
 float4 main(InputType input) : SV_TARGET
 {
+	//get rgb colour
 	float3 normalMap = textureBump.Sample(Sampler0, input.tex).rgb;	
-
+	//get new normal
 	float3 newNormal = reCalculateNormal(normalMap, input.normal, input.tangent);
-
+	//read in original texture
 	float4 textureColour = texture0.Sample(Sampler0, input.tex);
 	
 	float4 colour = float4(0.f, 0.f, 0.f, 1.f);
-
+	//apply shadows and ligthing
 	colour = doShadow(input, newNormal);
-	
+	//apply texture colour
 	return colour * textureColour;
 
 }

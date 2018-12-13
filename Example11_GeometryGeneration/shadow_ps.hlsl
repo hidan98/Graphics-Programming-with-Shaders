@@ -77,7 +77,6 @@ float4 main(InputType input) : SV_TARGET
 	if (pTexCoord.x < 0.f || pTexCoord.x > 1.f || pTexCoord.y < 0.f || pTexCoord.y > 1.f)
 	{
 		colour += calculateLighting(-direction[1], input.normal, diffuse[1]);
-		//return textureColour;
 	}
 
 	// Sample the shadow map (get depth of geometry)

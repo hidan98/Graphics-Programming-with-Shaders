@@ -34,7 +34,7 @@ void TesselatedDepthShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC TessellationBufferDesc;
 	D3D11_BUFFER_DESC TimeBufferDesc;
-	D3D11_BUFFER_DESC TimeBuffer1Desc;
+	D3D11_BUFFER_DESC WaveBufferDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -64,7 +64,7 @@ void TesselatedDepthShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	TimeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	TimeBufferDesc.ByteWidth = sizeof(TimeBufferType);
+	TimeBufferDesc.ByteWidth = sizeof(timeBufferType);
 	TimeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	TimeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	TimeBufferDesc.MiscFlags = 0;
@@ -75,15 +75,15 @@ void TesselatedDepthShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	TimeBuffer1Desc.Usage = D3D11_USAGE_DYNAMIC;
-	TimeBuffer1Desc.ByteWidth = sizeof(TimeBufferType);
-	TimeBuffer1Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	TimeBuffer1Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	TimeBuffer1Desc.MiscFlags = 0;
-	TimeBuffer1Desc.StructureByteStride = 0;
+	WaveBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	WaveBufferDesc.ByteWidth = sizeof(WaveBufferType);
+	WaveBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	WaveBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	WaveBufferDesc.MiscFlags = 0;
+	WaveBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	renderer->CreateBuffer(&TimeBuffer1Desc, NULL, &timeBuffer1);
+	renderer->CreateBuffer(&WaveBufferDesc, NULL, &waveBuffer);
 
 }
 
@@ -99,7 +99,7 @@ void TesselatedDepthShader::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WCH
 }
 
 
-void TesselatedDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, float time, float amplitude[], float angularWave[], float angularFrequency[], float phaseShift[])
+void TesselatedDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, float time, float amplitude[], float Wave[], float angularFreq[], float Shift[], XMFLOAT3 camPos)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -118,34 +118,37 @@ void TesselatedDepthShader::setShaderParameters(ID3D11DeviceContext* deviceConte
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
 
-	// Lock the constant buffer so it can be written to.
-	deviceContext->Map(timeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	TimeBufferType* dataPtr4 = (TimeBufferType*)mappedResource.pData;
-	dataPtr4->time.x = time;
-	dataPtr4->time.y = time;
-	dataPtr4->time.z = time;
-	dataPtr4->time.w = time;
+	// set up info in wave buffer
+	deviceContext->Map(waveBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	WaveBufferType* wavePtr = (WaveBufferType*)mappedResource.pData;
+	wavePtr->time.x = time;
+	wavePtr->time.y = time;
+	wavePtr->time.z = time;
+	wavePtr->time.w = time;
 
-	dataPtr4->amplitude.x = amplitude[0];
-	dataPtr4->angularFrequency.x = angularFrequency[0];
-	dataPtr4->angularWave.x = angularWave[0];
-	dataPtr4->phaseShift.x = phaseShift[0];
+	wavePtr->height.x = amplitude[0];
+	wavePtr->frequency.x = angularFreq[0];
+	wavePtr->waveLenght.x = Wave[0];
+	wavePtr->shift.x = Shift[0];
 
-	dataPtr4->amplitude.y = amplitude[1];
-	dataPtr4->angularFrequency.y = angularFrequency[1];
-	dataPtr4->angularWave.y = angularWave[1];
-	dataPtr4->phaseShift.y = phaseShift[1];
+	wavePtr->height.y = amplitude[1];
+	wavePtr->frequency.y = angularFreq[1];
+	wavePtr->waveLenght.y = Wave[1];
+	wavePtr->shift.y = Shift[1];
+
+	deviceContext->Unmap(waveBuffer, 0);
+	deviceContext->DSSetConstantBuffers(1, 1, &waveBuffer);
 
 	deviceContext->Unmap(timeBuffer, 0);
 	deviceContext->DSSetConstantBuffers(1, 1, &timeBuffer);
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
 
-	deviceContext->Map(timeBuffer1, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	timeBuffer1Type* dataPtr99 = (timeBuffer1Type*)mappedResource.pData;
+	deviceContext->Map(timeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	timeBufferType* dataPtr99 = (timeBufferType*)mappedResource.pData;
 	dataPtr99->time = time;
 	dataPtr99->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	deviceContext->Unmap(timeBuffer1, 0);
-	deviceContext->GSSetConstantBuffers(1, 1, &timeBuffer1);
+	deviceContext->Unmap(timeBuffer, 0);
+	deviceContext->GSSetConstantBuffers(1, 1, &timeBuffer);
 }
 
 

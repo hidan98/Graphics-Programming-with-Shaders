@@ -3,7 +3,9 @@
 
 SphereShadow::SphereShadow(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
+	loader = new CustomeLoader;
 	initShader(L"sphere_vs.cso", L"ShadowSphere_ds.cso", L"sphere_hs.cso", L"sphere_ps.cso");
+	
 }
 
 
@@ -30,6 +32,8 @@ SphereShadow::~SphereShadow()
 		lightBuffer = 0;
 	}
 
+	delete loader;
+	loader = NULL;
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
@@ -43,6 +47,7 @@ void SphereShadow::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	D3D11_BUFFER_DESC lightMatrixDesc;
 
 	// Load (+ compile) shader files
+	//loader->customeVertexLoader(vsFilename, renderer, vertexShader, layout);
 	customeLoad(vsFilename);
 	loadPixelShader(psFilename);
 
@@ -177,20 +182,17 @@ void SphereShadow::customeLoad(WCHAR* filename)
 {
 	ID3D10Blob* customeVertexShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[4];
-	ID3D10Blob* error;
-	HRESULT result;
 
 	unsigned int numberElements;
 
-
 	customeVertexShaderBuffer = 0;
 
+	//read file in
 	D3DReadFileToBlob(filename, &customeVertexShaderBuffer);
-
-
-
+	//setup shader
 	renderer->CreateVertexShader(customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), NULL, &vertexShader);
 
+	//set up layout
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -228,6 +230,7 @@ void SphereShadow::customeLoad(WCHAR* filename)
 
 	renderer->CreateInputLayout(polygonLayout, numberElements, customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), &layout);
 
+	//reset everything
 	customeVertexShaderBuffer->Release();
 	customeVertexShaderBuffer = nullptr;
 

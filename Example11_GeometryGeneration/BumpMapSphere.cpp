@@ -1,15 +1,14 @@
-#include "ColourExtractSphereShader.h"
+#include "BumpMapSphere.h"
 #include <d3dcompiler.h>
 
-ColourExtractSphereShader::ColourExtractSphereShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
-{
-	loader = new CustomeLoader;
-	initShader(L"sphere_vs.cso", L"sphere_hs.cso", L"sphere_ds.cso", L"SphereBrightExtrac_ps.cso");
 
+BumpMapSphere::BumpMapSphere(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+{
+	initShader(L"sphere_vs.cso", L"sphere_ds.cso", L"sphere_hs.cso", L"sphere_ps.cso");
 }
 
 
-ColourExtractSphereShader::~ColourExtractSphereShader()
+BumpMapSphere::~BumpMapSphere()
 {
 	// Release the sampler state.
 	if (sampleState)
@@ -36,29 +35,19 @@ ColourExtractSphereShader::~ColourExtractSphereShader()
 		lightBuffer->Release();
 		lightBuffer = 0;
 	}
-	if (brightBuffer)
-	{
-		brightBuffer->Release();
-		brightBuffer = 0;
-	}
 
-	delete loader;
-	loader = NULL;
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
 
-void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
+void BumpMapSphere::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC tessellationBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
-	D3D11_BUFFER_DESC brigthBufferDesc;
-
 
 	// Load (+ compile) shader files
-	//loader->customeVertexLoader(vsFilename, renderer, vertexShader, layout);
 	customeLoad(vsFilename);
 	loadPixelShader(psFilename);
 
@@ -101,16 +90,19 @@ void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	lightBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
-	brigthBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	brigthBufferDesc.ByteWidth = sizeof(BrightnessBufferType);
-	brigthBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	brigthBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	brigthBufferDesc.MiscFlags = 0;
-	brigthBufferDesc.StructureByteStride = 0;
-	renderer->CreateBuffer(&brigthBufferDesc, NULL, &brightBuffer);
-
 }
-void ColourExtractSphereShader::customeLoad(WCHAR* filename)
+
+void BumpMapSphere::initShader(WCHAR* vsFilename, WCHAR* dsFilename, WCHAR* hsFilename, WCHAR* psFilename)
+{
+	// InitShader must be overwritten and it will load both vertex and pixel shaders + setup buffers
+	initShader(vsFilename, psFilename);
+
+	// Load other required shaders.
+	loadHullShader(hsFilename);
+	loadDomainShader(dsFilename);
+}
+
+void BumpMapSphere::customeLoad(WCHAR* filename)
 {
 	ID3D10Blob* customeVertexShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[4];
@@ -119,13 +111,14 @@ void ColourExtractSphereShader::customeLoad(WCHAR* filename)
 
 	unsigned int numberElements;
 
-
 	customeVertexShaderBuffer = 0;
 
+	//read file in
 	D3DReadFileToBlob(filename, &customeVertexShaderBuffer);
-
+	//set up new vertex buffer
 	renderer->CreateVertexShader(customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), NULL, &vertexShader);
 
+	//create input layout - data will be put in to the buffer in this order (position, texcoord, normal and tangent)
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -158,74 +151,62 @@ void ColourExtractSphereShader::customeLoad(WCHAR* filename)
 	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[3].InstanceDataStepRate = 0;
 
-
+	//number of elements in the buffer
 	numberElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
+	//create input layout from the polygone layout
 	renderer->CreateInputLayout(polygonLayout, numberElements, customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), &layout);
 
+	//relese buffer - no longer needed
 	customeVertexShaderBuffer->Release();
 	customeVertexShaderBuffer = nullptr;
 
 }
 
-void ColourExtractSphereShader::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* dsFilename, WCHAR* psFilename)
-{
-	// InitShader must be overwritten and it will load both vertex and pixel shaders + setup buffers
-	initShader(vsFilename, psFilename);
 
-	// Load other required shaders.
-	loadHullShader(hsFilename);
-	loadDomainShader(dsFilename);
-}
-
-void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normal, Light* light[2], float brightness)
+void BumpMapSphere::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture1, Light* light[2])
 {
-	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
-	XMMATRIX tworld, tview, tproj;
-
 
 	// Transpose the matrices to prepare them for the shader.
-	tworld = XMMatrixTranspose(worldMatrix);
-	tview = XMMatrixTranspose(viewMatrix);
-	tproj = XMMatrixTranspose(projectionMatrix);
+	XMMATRIX tworld = XMMatrixTranspose(worldMatrix);
+	XMMATRIX tview = XMMatrixTranspose(viewMatrix);
+	XMMATRIX tproj = XMMatrixTranspose(projectionMatrix);
 
-	// Sned matrix data
-	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	dataPtr->world = tworld;// worldMatrix;
 	dataPtr->view = tview;
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
+	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(1, 1, &texture1);
+	deviceContext->PSSetSamplers(0, 1, &sampleState);
+
+
+	deviceContext->DSSetShaderResources(0, 1, &texture);
+	deviceContext->DSSetSamplers(0, 1, &sampleState);
 
 
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	LightBufferType* ligthPtr = (LightBufferType*)mappedResource.pData;
+	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
 	{
-		ligthPtr->ambient[i] = light[i]->getAmbientColour();
-		ligthPtr->diffuse[i] = light[i]->getDiffuseColour();
-		ligthPtr->direction[i].x = light[i]->getDirection().x;
-		ligthPtr->direction[i].y = light[i]->getDirection().y;
-		ligthPtr->direction[i].z = light[i]->getDirection().z;
-		ligthPtr->direction[i].w = 1.0f;
+		lightPtr->ambient[i] = light[i]->getAmbientColour();
+		lightPtr->diffuse[i] = light[i]->getDiffuseColour();
+		lightPtr->direction[i].x = light[i]->getDirection().x;
+		lightPtr->direction[i].y = light[i]->getDirection().y;
+		lightPtr->direction[i].z = light[i]->getDirection().z;
+		lightPtr->direction[i].w = 0;
 	}
+
+
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 
-	// Set shader texture and sampler resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-	deviceContext->PSSetShaderResources(1, 1, &normal);
-	deviceContext->PSSetSamplers(0, 1, &sampleState);
 
-	deviceContext->Map(brightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	BrightnessBufferType* brightPtr = (BrightnessBufferType*)mappedResource.pData;
-	brightPtr->bright = brightness;
-	brightPtr->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	deviceContext->Unmap(lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(1, 1, &brightBuffer);
 }
 
 

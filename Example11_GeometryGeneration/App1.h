@@ -4,14 +4,13 @@
 
 // Includes
 #include "DXF.h"	// include dxframework
-#include "GeometryShader.h"
 #include "DepthShader.h"
 #include "ShadowShader.h"
 #include "TextureShader.h"
 #include "TesselatedCube.h"
 #include "TesselatedDepthShader.h"
 #include "TesselatedShadowShader.h"
-#include "HightMapSphereShader.h"
+#include "BumpMapSphere.h"
 #include "CustomSphereMesh.h"
 #include "HoriszontalBlurShader.h"
 #include "VerticalBlurShader.h"
@@ -57,8 +56,6 @@ public:
 	void finalPass();
 
 
-	void renderNormal();
-
 protected:
 	bool render();
 	void gui();
@@ -67,13 +64,12 @@ protected:
 
 private:
 	TextureShader* textureShader;
-	GeometryShader* geometryShader;
 	DepthShader* depthShader;
 	ShadowShader* shadowShader;
 	
 	TesselatedDepthShader* tessDepth;
 	TesselatedShadowShader* tessShadow;
-	HightMapSphereShader* hightShader;
+	BumpMapSphere* bumpShader;
 	SphereShadow* sphereShadow;
 	SphereDepth* sphereDepth;
 	ColourExtractSphereShader* sphereExtract;
@@ -82,13 +78,13 @@ private:
 	CubeMesh* cube;
 	PlaneMesh* plane;
 	PointMesh* mesh;
-	CubeMesh* anotherCube;
 
 	
 	//Light* light1;
 	TesselatedCube* tesselatedCube;
 
 	OrthoMesh* orthoMesh;
+	OrthoMesh* smallerOrthoMesh;
 	OrthoMesh* orthoMesh1;
 	OrthoMesh* screenOrtho;
 	RenderTexture* shadow;
@@ -126,7 +122,6 @@ private:
 	float colour1[4];
 	float colourAmbiant[4];
 	float colourAmbiant1[4];
-	OrthoMesh* orthoMeshBlur;
 
 	float brightThreshHold;
 	int times;

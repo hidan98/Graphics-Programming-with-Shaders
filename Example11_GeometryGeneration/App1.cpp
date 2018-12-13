@@ -11,39 +11,43 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 {
 
 
-
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
-	// Create Mesh object and shader object
+	// Create Mesh objects
 	mesh = new PointMesh(renderer->getDevice(), renderer->getDeviceContext());
 	cube = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
 	plane = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
 	tesselatedCube = new TesselatedCube(renderer->getDevice());
+	sphere = new CustomSphereMesh(renderer->getDevice());
 
+	//load shaders
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	shadowShader = new ShadowShader(renderer->getDevice(), hwnd);
 	tessDepth = new TesselatedDepthShader(renderer->getDevice(), hwnd);
-	textureMgr->loadTexture("brick", L"res/brick1.dds");
-	textureMgr->loadTexture("bunny", L"res/bunny.png");
-	textureMgr->loadTexture("normal", L"res/NormalMap.png");
-	geometryShader = new GeometryShader(renderer->getDevice(), hwnd);
 	tessShadow = new TesselatedShadowShader(renderer->getDevice(), hwnd);
 	combine = new CombineShader(renderer->getDevice(), hwnd);
-	hightShader = new HightMapSphereShader(renderer->getDevice(), hwnd);
+	bumpShader = new BumpMapSphere(renderer->getDevice(), hwnd);
 	sphereShadow = new SphereShadow(renderer->getDevice(), hwnd);
 	sphereDepth = new SphereDepth(renderer->getDevice(), hwnd);
 	sphereExtract = new ColourExtractSphereShader(renderer->getDevice(), hwnd);
 	wibbleExtract = new WibbleCubeExtract(renderer->getDevice(), hwnd);
+	horizontalShader = new HoriszontalBlurShader(renderer->getDevice(), hwnd);
+	verticalShader = new VerticalBlurShader(renderer->getDevice(), hwnd);
+	extractShader = new ExtractLightShader(renderer->getDevice(), hwnd);
 
+	//load textures
+	textureMgr->loadTexture("brick", L"res/brick1.dds");
+	textureMgr->loadTexture("bunny", L"res/bunny.png");
+	textureMgr->loadTexture("normal", L"res/NormalMap.png");
 
 	int shadowmapWidth = 2048 * 2;
 	int shadowmapHeight = 2048 *2;
 	int sceneWidth = 100;
 	int sceneHeight = 100;
 
-	
+	//setup light info
 	shadowInfo_ = new shadowInfo;
 	light[0] = new Light;
 	light[0]->setAmbientColour(0.0f, 0.f, 0.f, 1.0f);
@@ -51,45 +55,34 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light[0]->setDirection(1.0f, -0.2f, 0.7f);
 	light[0]->setPosition(0.f, 0.f, -10.f);
 	light[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
-	//shadowInfo_->light[0]->generateViewMatrix();
 
 	light[1] = new Light;
 	light[1]->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
 	light[1]->setDiffuseColour(0.0f, 0.0f, 0.0f, 1.0f);
-	light[1]->setDirection(0.0f, -1.f, 0.01f);
-	light[1]->setPosition(0.f, 10.f, -10.f);
+	light[1]->setDirection(1.0f, -1.f, 1.0f);
+	light[1]->setPosition(-5.f, 1.f, -1.f);
 	light[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
 	//shadowInfo_->light[1]->generateViewMatrix();
 
-	shadowInfo_->shadowMap[0] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
-	shadowInfo_->shadowMap[1] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
-
+	//setup ortho meshes
+	screenOrtho = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight);
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / -4, screenHeight / -4);
 
-	orthoMesh1 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 4, screenHeight / 4);
+	orthoMesh1 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 4, screenHeight / -4);
 
 	stopTime = true;
 
+	//set up render textures
+	shadowInfo_->shadowMap[0] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	shadowInfo_->shadowMap[1] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	horizontalBlurTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	verticalBlurTexture = new RenderTexture(renderer->getDevice(), screenWidth , screenHeight , SCREEN_NEAR, SCREEN_DEPTH);
 	bloomTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	texture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
-	testTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
-
-
-	sphere = new CustomSphereMesh(renderer->getDevice());
-
-	orthoMeshBlur = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight);
-	screenOrtho = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight);
-
-	horizontalShader = new HoriszontalBlurShader(renderer->getDevice(), hwnd);
-	verticalShader = new VerticalBlurShader(renderer->getDevice(), hwnd);
-
-	extractShader = new ExtractLightShader(renderer->getDevice(), hwnd);
-
-	anotherCube = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
+	testTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);	
 }
 
+//renders thr brightest part of the geoometry to a render texture
 void App1::extractLight()
 {
 	// Set the render target to be the render to texture and clear it
@@ -110,7 +103,6 @@ void App1::extractLight()
 	plane->sendData(renderer->getDeviceContext());
 	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bricks"), light, brightThreshHold);
 	extractShader->render(renderer->getDeviceContext(), plane->getIndexCount());
-
 	
 	worldMatrix = renderer->getWorldMatrix();
 	// Render shape with simple lighting shader set.
@@ -118,20 +110,18 @@ void App1::extractLight()
 	cube->sendData(renderer->getDeviceContext());
 	extractShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, brightThreshHold);
 	extractShader->render(renderer->getDeviceContext(), cube->getIndexCount());
-
-
-
+	
+	//bymp sphere
 	worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
 	sphere->sendData(renderer->getDeviceContext());
 	sphereExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normalMap"), light, brightThreshHold);
 	sphereExtract->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
-
-	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	//bibble cube
+	worldMatrix = XMMatrixTranslation(-5.f, 7.f, 5.f);
 	tesselatedCube->sendData(renderer->getDeviceContext());
 	wibbleExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, brightThreshHold);
-	wibbleExtract->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
-		
+	wibbleExtract->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());		
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	renderer->setBackBufferRenderTarget();
@@ -142,6 +132,7 @@ void App1::extractLight()
 
 void App1::depthPass()
 {
+	//stop the time, moving object wont move if acive 
 	if (!stopTime)
 	{
 		time += timer->getTime();
@@ -150,13 +141,12 @@ void App1::depthPass()
 	matrixInfo matrixInfo_;
 
 
+	//need to loop twice so it is at the perspective of each light
 	for (int i = 0; i < 2; i++)
 	{
-
+		//set up render textures 
 		shadowInfo_->shadowMap[i]->setRenderTarget(renderer->getDeviceContext());
 		shadowInfo_->shadowMap[i]->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
-		
-
 
 		// get the world, view, and projection matrices from the camera and d3d objects.
 		
@@ -181,17 +171,17 @@ void App1::depthPass()
 		worldMatrix = renderer->getWorldMatrix();
 		worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
 		tesselatedCube->sendData(renderer->getDeviceContext());
-		tessDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix, time, amplitude, angularWave, angularFrequency, phaseShift);
+		tessDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix, time, amplitude, angularWave, angularFrequency, phaseShift, camera->getPosition());
 		tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
+		//normal cube
 		worldMatrix = renderer->getWorldMatrix();
 		worldMatrix = XMMatrixTranslation(0.f, 7.f, 0.f);
-
 		cube->sendData(renderer->getDeviceContext());
 		depthShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 		depthShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
-
+		//sphere
 		worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
 		sphere->sendData(renderer->getDeviceContext());
 		sphereDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
@@ -201,21 +191,18 @@ void App1::depthPass()
 		// Set back buffer as render target and reset view port.
 		renderer->setBackBufferRenderTarget();
 		renderer->resetViewport();
-
-	}
-
-	
+	}	
 }
 
 void App1::shadowPass()
 {
-
+	//set up render texture
 	texture->setRenderTarget(renderer->getDeviceContext());
 	texture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
 
 	camera->update();
 
-//	// get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	// get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
@@ -226,26 +213,21 @@ void App1::shadowPass()
 	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,	textureMgr->getTexture("brick"), light, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView());
 	shadowShader->render(renderer->getDeviceContext(), plane->getIndexCount());
 
-	// Render model
-
+	// tesselatted cube
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(-5.f, 7.f, 5.f);
-//	XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-	//worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
 	tesselatedCube->sendData(renderer->getDeviceContext());
-	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"),  shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), light, time, amplitude, angularWave, angularFrequency, phaseShift);
+	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"),  shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), light, time, amplitude, angularWave, angularFrequency, phaseShift, camera->getPosition());
 	tessShadow->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
-
+	//normal cube
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(0.f, 7.f, 0.f);
 	cube->sendData(renderer->getDeviceContext());
 	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView());
 	shadowShader->render(renderer->getDeviceContext(), cube->getIndexCount());
 
-
-	
-
+	//sphere
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(0.f, 7.0f, 20.f);
 	sphere->sendData(renderer->getDeviceContext());
@@ -256,12 +238,11 @@ void App1::shadowPass()
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(0.0f, 5.0f, 10.0f);
 	sphere->sendData(renderer->getDeviceContext());
-	hightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light);
-	hightShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
+	bumpShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), textureMgr->getTexture("normal"), light);
+	bumpShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
 
 
-	renderer->setBackBufferRenderTarget();
-	
+	renderer->setBackBufferRenderTarget();	
 
 }
 
@@ -314,13 +295,10 @@ void App1::verticalBlur()
 
 void App1::bloomPass()
 {
-
-
 	extractLight();
 	horizontalBlur();
 	verticalBlur();
 	combinePass();
-
 }
 
 void App1::combinePass()
@@ -355,29 +333,29 @@ void App1::finalPass()
 {
 	renderer->beginScene(0.39f, 0.58f, 0.92f, 1.0f);
 
-	
-
-
-
 	renderer->setZBuffer(false);
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
 	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 
+	//render the scene
 	screenOrtho->sendData(renderer->getDeviceContext());
 	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, bloomTexture->getShaderResourceView());
 	textureShader->render(renderer->getDeviceContext(), screenOrtho->getIndexCount());
 	renderer->setZBuffer(true);
 
+
+
 	worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX orthView = camera->getOrthoViewMatrix();
 	XMMATRIX orthProj = renderer->getOrthoMatrix();
+
+	//render shadow maps to smaller ortho meshes 
 	renderer->setZBuffer(false);
 	orthoMesh->sendData(renderer->getDeviceContext());
 	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthView, orthProj, shadowInfo_->shadowMap[0]->getShaderResourceView());
 	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
 	renderer->setZBuffer(true);
-
 
 	worldMatrix = renderer->getWorldMatrix();
 	renderer->setZBuffer(false);
@@ -422,22 +400,21 @@ bool App1::frame()
 		return false;
 	}
 
-
-	/*light[0]->setDiffuseColour(colour[0], colour[1], colour[2], colour[3]);
+	//update light colour based on user input
+	light[0]->setDiffuseColour(colour[0], colour[1], colour[2], colour[3]);
 	light[1]->setDiffuseColour(colour1[0], colour1[1], colour1[2], colour1[3]);
 	light[0]->setAmbientColour(colour1[0], colourAmbiant[1], colourAmbiant[2], colourAmbiant[3]);
-	light[1]->setAmbientColour(colour1[0], colourAmbiant1[1], colourAmbiant1[2], colourAmbiant1[3]);*/
+	light[1]->setAmbientColour(colour1[0], colourAmbiant1[1], colourAmbiant1[2], colourAmbiant1[3]);
 
 	return true;
 }
 
 bool App1::render()
 {
-	//
-//	renderer->setWireframeMode(false);
 	depthPass();
 	shadowPass();
 	bloomPass();
+	renderer->setWireframeMode(false);
 	finalPass();
 	return true;
 }
@@ -474,10 +451,11 @@ void App1::gui()
 		ImGui::SliderFloat("bloom Treshhold", &brightThreshHold, 0, 1);
 		ImGui::Checkbox("Stop time", &stopTime);
 
-		ImGui::ColorPicker4("Color", colour);
-		ImGui::ColorPicker4("Color1", colour1);
-		ImGui::ColorPicker4("colourAmbiant", colourAmbiant);
-		ImGui::ColorPicker4("colourAmbiant1", colourAmbiant1);
+		ImGui::ColorPicker4("Defuse1", colour);
+		ImGui::ColorPicker4("Ambiant1", colourAmbiant);
+		ImGui::ColorPicker4("Deffuse2", colour1);
+		
+		ImGui::ColorPicker4("Ambiant2", colourAmbiant1);
 
 		//ImGui::TreePop();
 	}

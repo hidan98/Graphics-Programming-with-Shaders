@@ -30,9 +30,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeometryShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ShadowShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,12 +78,15 @@
     <ClCompile Include="WibbleCubeExtract.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BumpMapSphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomeLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometryShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DepthShader.h">
@@ -135,6 +135,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WibbleCubeExtract.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BumpMapSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomeLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

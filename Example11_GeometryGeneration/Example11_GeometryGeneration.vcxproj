@@ -22,33 +22,33 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4aeef8f1-cc55-4ae7-b72c-632fc4d135a3}</ProjectGuid>
     <RootNamespace>Example11_GeometryGeneration</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <ProjectName>Example11_GeometryGeneration</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -149,12 +149,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp" />
+    <ClCompile Include="BumpMapSphere.cpp" />
     <ClCompile Include="ColourExtractSphereShader.cpp" />
     <ClCompile Include="CombineShader.cpp" />
+    <ClCompile Include="CustomeLoader.cpp" />
     <ClCompile Include="CustomSphereMesh.cpp" />
     <ClCompile Include="DepthShader.cpp" />
     <ClCompile Include="ExtractLightShader.cpp" />
-    <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="HightMapSphereShader.cpp" />
     <ClCompile Include="HoriszontalBlurShader.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -170,12 +171,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
+    <ClInclude Include="BumpMapSphere.h" />
     <ClInclude Include="ColourExtractSphereShader.h" />
     <ClInclude Include="CombineShader.h" />
+    <ClInclude Include="CustomeLoader.h" />
     <ClInclude Include="CustomSphereMesh.h" />
     <ClInclude Include="DepthShader.h" />
     <ClInclude Include="ExtractLightShader.h" />
-    <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="HightMapSphereShader.h" />
     <ClInclude Include="HoriszontalBlurShader.h" />
     <ClInclude Include="ShadowShader.h" />

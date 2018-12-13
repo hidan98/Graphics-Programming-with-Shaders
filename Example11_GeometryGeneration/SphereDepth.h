@@ -3,6 +3,7 @@
 #pragma once
 
 #include "DXF.h"
+#include "CustomeLoader.h"
 
 using namespace std;
 using namespace DirectX;
@@ -27,4 +28,5 @@ private:
 
 private:
 	ID3D11Buffer* matrixBuffer;
+	CustomeLoader* loader;
 };

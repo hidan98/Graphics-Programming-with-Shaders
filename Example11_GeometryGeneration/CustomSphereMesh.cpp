@@ -77,6 +77,8 @@ void CustomSphereMesh::initBuffers(ID3D11Device * device)
 			tangent.x = -radius*sinf(theta)*sinf(delta +deltaInc);
 			tangent.y = 0.0f;
 			tangent.z = radius * sinf(theta) *cosf(delta + deltaInc);
+
+
 			sphereTangent.push_back(tangent);
 
 
@@ -95,6 +97,7 @@ void CustomSphereMesh::initBuffers(ID3D11Device * device)
 			tangent.x = -radius*sinf(theta + thetaInc)*sinf(delta + deltaInc);
 			tangent.y = 0.0f;
 			tangent.z = radius * sinf(theta + thetaInc) *cosf(delta + deltaInc);
+
 			sphereTangent.push_back(tangent);
 			
 			

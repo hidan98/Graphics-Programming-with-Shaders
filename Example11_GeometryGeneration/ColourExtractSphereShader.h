@@ -1,5 +1,6 @@
 #pragma once
 #include "DXF.h"
+#include "CustomeLoader.h"
 
 using namespace std;
 using namespace DirectX;
@@ -38,4 +39,6 @@ private:
 	ID3D11SamplerState* sampleState;
 	ID3D11Buffer* brightBuffer;
 	ID3D11Buffer* lightBuffer;
+
+	CustomeLoader* loader;
 };

@@ -38,14 +38,10 @@ OutputType explode(InputType input, float normal)
 {
 	OutputType output;
 
-	//float3 normal = mul(input.normal, (float3x3)worldMatrix);
-	//normal = normalize(normal);
+	//the distance/ direction is along the normalwith the ofset of sin(time/5) to slow it down + the direction
+	float3 position =  normal * sin(time / 5) + input.position;
 
-	float magnitude = 2.f;
-
-	float3 direction =  normal * sin(time / 5) + input.position;
-
-	output.position = float4(input.position, 1.0f) + float4(direction, 1.0f);
+	output.position = float4(input.position, 1.0f) + float4(position, 1.0f);
 	output.position = mul(output.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
@@ -71,12 +67,12 @@ OutputType explode(InputType input, float normal)
 void main(triangle InputType input[3], inout TriangleStream< OutputType > triStream)
 {
 	OutputType output;
-	float3 a = input[0].position.xyz - input[1].position.xyz;
-	float3 b = input[2].position.xyz - input[1].position.xyz;
-	float3 normal = normalize(cross(a, b));
+	
+	output.normal = mul(input[0].normal, (float3x3) worldMatrix);
+	output.normal = normalize(output.normal);
 	for (int i = 0; i < 3; i++)
 	{
-		output = explode(input[i], normal);
+		output = explode(input[i], output.normal);
 		triStream.Append(output);
 	}
 	triStream.RestartStrip();

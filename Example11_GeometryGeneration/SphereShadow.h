@@ -1,5 +1,6 @@
 #pragma once
 #include "DXF.h"
+#include "CustomeLoader.h"
 
 using namespace std;
 using namespace DirectX;
@@ -51,4 +52,6 @@ private:
 	ID3D11Buffer* lightBuffer;
 
 	ID3D11Buffer* lightMatrixBuffer;
+
+	CustomeLoader* loader;
 };

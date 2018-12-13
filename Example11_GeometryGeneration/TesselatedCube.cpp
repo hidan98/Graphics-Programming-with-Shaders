@@ -170,8 +170,6 @@ void TesselatedCube::initBuffers(ID3D11Device * device)
 	indexData = { indices, 0, 0 };
 	device->CreateBuffer(&indexBufferDesc, &indexData, &indexBuffer);
 
-
-
 	// Release the arrays now that the vertex and index buffers have been created and loaded.
 	delete[] vertices;
 	vertices = 0;
@@ -182,7 +180,6 @@ void TesselatedCube::initBuffers(ID3D11Device * device)
 
 void TesselatedCube::sendData(ID3D11DeviceContext * deviceContext)
 {
-
 	unsigned int stride;
 	unsigned int offset;
 

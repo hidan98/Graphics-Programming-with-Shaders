@@ -3,7 +3,9 @@
 
 SphereDepth::SphereDepth(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
+	loader = new CustomeLoader;
 	initShader(L"sphere_vs.cso", L"sphere_hs.cso", L"sphereDepth_ds.cso", L"depth_ps.cso");
+	
 }
 
 
@@ -22,7 +24,8 @@ SphereDepth::~SphereDepth()
 		layout->Release();
 		layout = 0;
 	}
-
+	delete loader;
+	loader = NULL;
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
@@ -34,6 +37,7 @@ void SphereDepth::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 	// Load (+ compile) shader files
 	customeLoad(vsFilename);
+	//loader->customeVertexLoader(vsFilename, renderer, vertexShader, layout);
 	loadPixelShader(psFilename);
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
