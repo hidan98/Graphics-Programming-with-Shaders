@@ -189,10 +189,10 @@ void SphereShadow::customeLoad(WCHAR* filename)
 
 	//read file in
 	D3DReadFileToBlob(filename, &customeVertexShaderBuffer);
-	//setup shader
+	//set up new vertex buffer
 	renderer->CreateVertexShader(customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), NULL, &vertexShader);
 
-	//set up layout
+	//create input layout - data will be put in to the buffer in this order (position, texcoord, normal and tangent)
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -225,12 +225,13 @@ void SphereShadow::customeLoad(WCHAR* filename)
 	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[3].InstanceDataStepRate = 0;
 
-
+	//number of elements in the buffer
 	numberElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
+	//create input layout from the polygone layout
 	renderer->CreateInputLayout(polygonLayout, numberElements, customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), &layout);
 
-	//reset everything
+	//relese buffer - no longer needed
 	customeVertexShaderBuffer->Release();
 	customeVertexShaderBuffer = nullptr;
 

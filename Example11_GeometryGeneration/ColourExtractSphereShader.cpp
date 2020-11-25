@@ -114,18 +114,17 @@ void ColourExtractSphereShader::customeLoad(WCHAR* filename)
 {
 	ID3D10Blob* customeVertexShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[4];
-	ID3D10Blob* error;
-	HRESULT result;
 
 	unsigned int numberElements;
 
-
 	customeVertexShaderBuffer = 0;
 
+	//read file in
 	D3DReadFileToBlob(filename, &customeVertexShaderBuffer);
-
+	//set up new vertex buffer
 	renderer->CreateVertexShader(customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), NULL, &vertexShader);
 
+	//create input layout - data will be put in to the buffer in this order (position, texcoord, normal and tangent)
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -158,11 +157,13 @@ void ColourExtractSphereShader::customeLoad(WCHAR* filename)
 	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[3].InstanceDataStepRate = 0;
 
-
+	//number of elements in the buffer
 	numberElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
+	//create input layout from the polygone layout
 	renderer->CreateInputLayout(polygonLayout, numberElements, customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), &layout);
 
+	//relese buffer - no longer needed
 	customeVertexShaderBuffer->Release();
 	customeVertexShaderBuffer = nullptr;
 
@@ -200,7 +201,7 @@ void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceC
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
 
-
+	//send light info
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightBufferType* ligthPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
@@ -220,6 +221,7 @@ void ColourExtractSphereShader::setShaderParameters(ID3D11DeviceContext* deviceC
 	deviceContext->PSSetShaderResources(1, 1, &normal);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 
+	//send brightness info
 	deviceContext->Map(brightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	BrightnessBufferType* brightPtr = (BrightnessBufferType*)mappedResource.pData;
 	brightPtr->bright = brightness;

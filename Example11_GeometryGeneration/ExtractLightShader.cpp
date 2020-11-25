@@ -85,8 +85,7 @@ void ExtractLightShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
 
-
-
+	//set up light buffer
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -95,6 +94,7 @@ void ExtractLightShader::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	lightBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
+	//set up bright buffer 
 	brigthBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	brigthBufferDesc.ByteWidth = sizeof(BrightnessBufferType);
 	brigthBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -129,6 +129,7 @@ void ExtractLightShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
 
+	//send light info
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
@@ -147,6 +148,7 @@ void ExtractLightShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 
+	//send bright bufferinfo
 	deviceContext->Map(brightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	BrightnessBufferType* brightPtr = (BrightnessBufferType*)mappedResource.pData;
 	brightPtr->bright = brightness;

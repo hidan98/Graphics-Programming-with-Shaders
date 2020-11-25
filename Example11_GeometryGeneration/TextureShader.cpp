@@ -115,15 +115,6 @@ void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
-
-	/*deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->diffuse = light->getDiffuseColour();
-	lightPtr->direction = light->getDirection();
-	lightPtr->renderNormal = false;
-	deviceContext->Unmap(lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);*/
-
 }
 
 

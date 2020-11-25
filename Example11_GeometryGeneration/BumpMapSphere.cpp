@@ -80,8 +80,6 @@ void BumpMapSphere::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
 
-
-
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -106,8 +104,6 @@ void BumpMapSphere::customeLoad(WCHAR* filename)
 {
 	ID3D10Blob* customeVertexShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[4];
-	ID3D10Blob* error;
-	HRESULT result;
 
 	unsigned int numberElements;
 
@@ -189,7 +185,7 @@ void BumpMapSphere::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->DSSetShaderResources(0, 1, &texture);
 	deviceContext->DSSetSamplers(0, 1, &sampleState);
 
-
+	//send ligh info over
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightBufferType* lightPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)

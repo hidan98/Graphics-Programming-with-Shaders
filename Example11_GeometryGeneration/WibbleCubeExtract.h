@@ -13,7 +13,7 @@ public:
 	WibbleCubeExtract(ID3D11Device* device, HWND hwnd);
 	~WibbleCubeExtract();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light[2], float bright);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light[2], float bright, XMFLOAT3 camPos);
 
 
 private:
@@ -31,10 +31,16 @@ private:
 		float bright;
 		XMFLOAT3 padding;
 	};
+	struct cameraBufferType
+	{
+		XMFLOAT3 cameraPosition;
+		float padding;
+	};
 
 private:
 	ID3D11Buffer * matrixBuffer;
 	ID3D11SamplerState* sampleState;
 	ID3D11Buffer* brightBuffer;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* camBuffer;
 };

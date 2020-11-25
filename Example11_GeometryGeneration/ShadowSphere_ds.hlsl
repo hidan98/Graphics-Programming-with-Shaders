@@ -1,6 +1,3 @@
-// Tessellation domain shader
-// After tessellation the domain shader processes the all the vertices
-
 
 cbuffer MatrixBuffer : register(b0)
 {

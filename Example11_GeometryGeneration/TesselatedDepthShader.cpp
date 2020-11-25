@@ -139,8 +139,6 @@ void TesselatedDepthShader::setShaderParameters(ID3D11DeviceContext* deviceConte
 	deviceContext->Unmap(waveBuffer, 0);
 	deviceContext->DSSetConstantBuffers(1, 1, &waveBuffer);
 
-	deviceContext->Unmap(timeBuffer, 0);
-	deviceContext->DSSetConstantBuffers(1, 1, &timeBuffer);
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
 
 	deviceContext->Map(timeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

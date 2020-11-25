@@ -1,7 +1,7 @@
 #include "CustomeLoader.h"
 #include <d3dcompiler.h>
 
-
+//not actualy in use
 CustomeLoader::CustomeLoader()
 {
 }

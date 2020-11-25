@@ -232,18 +232,17 @@ void TesselatedShadowShader::setShaderParameters(ID3D11DeviceContext* deviceCont
 
 	deviceContext->Unmap(waveBuffer, 0);
 	deviceContext->DSSetConstantBuffers(1, 1, &waveBuffer);
-
-
 	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
 
+	//send over time 
 	deviceContext->Map(timeBuffer1, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	timeBufferType* timePtr = (timeBufferType*)mappedResource.pData;
 	timePtr->time = time;
 	timePtr->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	deviceContext->Unmap(timeBuffer1, 0);
-	deviceContext->GSSetConstantBuffers(2, 1, &timeBuffer1);
+	deviceContext->GSSetConstantBuffers(1, 1, &timeBuffer1);
 
-
+	//send over light matrix
 	deviceContext->Map(lightMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightMatrixPtr = (lightMatrixType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)

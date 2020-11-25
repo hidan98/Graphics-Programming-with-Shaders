@@ -62,12 +62,12 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	output.normal = mul(output.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
 
+	//calculate tex coords from all points 
 	float2 tex1 = lerp(patch[0].tex, patch[1].tex, uvwCoord.y);
 	float2 tex2 = lerp(patch[3].tex, patch[2].tex, uvwCoord.y);
 	output.tex = lerp(tex1, tex2, uvwCoord.x);
-
 	
-
+	//recalculate tangent
 	float3 tan1 = lerp(patch[0].tangent, patch[1].tangent, uvwCoord.y);
 	float3 tan2 = lerp(patch[3].tangent, patch[2].tangent, uvwCoord.y);
 	output.tangent = lerp(tan1, tan1, uvwCoord.x);	
@@ -76,15 +76,13 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 	output.tangent = normalize(output.tangent);
 	
 
-	//vertexPosition += output.normal * texture0.SampleLevel(sampler0, output.tex, 0, 0) * 2;
-
-
-
+	
+	  //make sure positon is in the right space
 	output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
-
+	//make sure light positon is in the right space
 	for (int i = 0; i < 2; i++)
 	{
 		output.lightViewPos[i] = mul(float4(vertexPosition,1.0f), worldMatrix);

@@ -88,20 +88,17 @@ void SphereDepth::customeLoad(WCHAR* filename)
 {
 	ID3D10Blob* customeVertexShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[4];
-	ID3D10Blob* error;
-	HRESULT result;
 
 	unsigned int numberElements;
 
-
 	customeVertexShaderBuffer = 0;
 
+	//read file in
 	D3DReadFileToBlob(filename, &customeVertexShaderBuffer);
-
-
-
+	//set up new vertex buffer
 	renderer->CreateVertexShader(customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), NULL, &vertexShader);
 
+	//create input layout - data will be put in to the buffer in this order (position, texcoord, normal and tangent)
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -134,11 +131,13 @@ void SphereDepth::customeLoad(WCHAR* filename)
 	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[3].InstanceDataStepRate = 0;
 
-
+	//number of elements in the buffer
 	numberElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
+	//create input layout from the polygone layout
 	renderer->CreateInputLayout(polygonLayout, numberElements, customeVertexShaderBuffer->GetBufferPointer(), customeVertexShaderBuffer->GetBufferSize(), &layout);
 
+	//relese buffer - no longer needed
 	customeVertexShaderBuffer->Release();
 	customeVertexShaderBuffer = nullptr;
 

@@ -150,7 +150,7 @@ void ShadowShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->PSSetSamplers(1, 1, &sampleStateShadow);
 
 
-
+	//send over light matrix info
 	deviceContext->Map(lightMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightMatrixPtr = (lightMatrixType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)

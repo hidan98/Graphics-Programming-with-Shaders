@@ -50,7 +50,7 @@ void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	D3D11_BUFFER_DESC tessellationBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 	D3D11_BUFFER_DESC brigthBufferDesc;
-
+	D3D11_BUFFER_DESC camBufferDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -85,8 +85,7 @@ void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
 
-
-
+	//set up light buffer
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -95,6 +94,7 @@ void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	lightBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
+	//set  up bright buffer
 	brigthBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	brigthBufferDesc.ByteWidth = sizeof(BrightnessBufferType);
 	brigthBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -103,6 +103,14 @@ void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* psFilename)
 	brigthBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&brigthBufferDesc, NULL, &brightBuffer);
 
+	// Setup camera buffer
+	camBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	camBufferDesc.ByteWidth = sizeof(cameraBufferType);
+	camBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	camBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	camBufferDesc.MiscFlags = 0;
+	camBufferDesc.StructureByteStride = 0;
+	renderer->CreateBuffer(&camBufferDesc, NULL, &camBuffer);
 }
 
 
@@ -117,7 +125,7 @@ void WibbleCubeExtract::initShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* 
 	loadGeometryShader(gsFilename);
 }
 
-void WibbleCubeExtract::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light[2], float brightness)
+void WibbleCubeExtract::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light[2], float brightness, XMFLOAT3 camPos)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -130,6 +138,14 @@ void WibbleCubeExtract::setShaderParameters(ID3D11DeviceContext* deviceContext, 
 	tview = XMMatrixTranspose(viewMatrix);
 	tproj = XMMatrixTranspose(projectionMatrix);
 
+	//send camera pos
+	deviceContext->Map(camBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	cameraBufferType* camPtr = (cameraBufferType*)mappedResource.pData;
+	camPtr->cameraPosition = camPos;
+	camPtr->padding = 0;
+	deviceContext->Unmap(camBuffer, 0);
+	deviceContext->HSSetConstantBuffers(0, 1, &camBuffer);
+
 	// Sned matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
@@ -140,6 +156,7 @@ void WibbleCubeExtract::setShaderParameters(ID3D11DeviceContext* deviceContext, 
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
 	deviceContext->GSSetConstantBuffers(0, 1, &matrixBuffer);
 
+	//send light info over
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightBufferType* ligthPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 2; i++)
@@ -158,6 +175,7 @@ void WibbleCubeExtract::setShaderParameters(ID3D11DeviceContext* deviceContext, 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 
+	//send bright buffer
 	deviceContext->Map(brightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	BrightnessBufferType* brightPtr = (BrightnessBufferType*)mappedResource.pData;
 	brightPtr->bright = brightness;

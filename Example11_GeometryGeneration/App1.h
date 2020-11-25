@@ -103,11 +103,11 @@ private:
 	ExtractLightShader* extractShader;
 	CombineShader* combine;
 
-	float amplitude[2] = { 0.8f, 0.2f };
-	float angularWave[2] = { 1.0f, 8.0f };
-	float angularFrequency[2] = { 1.0f, 8.0f };
+	float height[2] = { 0.8f, 0.2f };
+	float waveLength[2] = { 1.0f, 8.0f };
+	float Frequency[2] = { 0.0f, 8.0f };
 
-	float phaseShift[2] = { 0.0f, 1.0f };
+	float Shift[2] = { 0.0f, 1.0f };
 
 	float time;
 	bool stopTime;
@@ -118,7 +118,7 @@ private:
 	
 	Light* light[2];
 
-	float colour[4];
+	float colour[4]{ 1.0f, 1.0f,1.0f,1.0f, };
 	float colour1[4];
 	float colourAmbiant[4];
 	float colourAmbiant1[4];

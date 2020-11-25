@@ -120,7 +120,7 @@ void App1::extractLight()
 	//bibble cube
 	worldMatrix = XMMatrixTranslation(-5.f, 7.f, 5.f);
 	tesselatedCube->sendData(renderer->getDeviceContext());
-	wibbleExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, brightThreshHold);
+	wibbleExtract->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"), light, brightThreshHold, camera->getPosition());
 	wibbleExtract->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());		
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
@@ -171,7 +171,7 @@ void App1::depthPass()
 		worldMatrix = renderer->getWorldMatrix();
 		worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
 		tesselatedCube->sendData(renderer->getDeviceContext());
-		tessDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix, time, amplitude, angularWave, angularFrequency, phaseShift, camera->getPosition());
+		tessDepth->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix, time, height, waveLength, Frequency, Shift, camera->getPosition());
 		tessDepth->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
 		//normal cube
@@ -217,7 +217,7 @@ void App1::shadowPass()
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixTranslation(-5.f, 7.f, 5.f);
 	tesselatedCube->sendData(renderer->getDeviceContext());
-	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"),  shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), light, time, amplitude, angularWave, angularFrequency, phaseShift, camera->getPosition());
+	tessShadow->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture("bunny"),  shadowInfo_->shadowMap[0]->getShaderResourceView(), shadowInfo_->shadowMap[1]->getShaderResourceView(), light, time, height, waveLength, Frequency, Shift, camera->getPosition());
 	tessShadow->render(renderer->getDeviceContext(), tesselatedCube->getIndexCount());
 
 	//normal cube
@@ -434,18 +434,18 @@ void App1::gui()
 
 		//if (ImGui::TreeNode("Angular"))
 		//{
-			ImGui::SliderFloat("amplitude[0]", &amplitude[0], 0, 5.0f);
-			ImGui::SliderFloat("amplitude[1]", &amplitude[1], 0, 5.0f);
-			ImGui::SliderFloat("angularWave[0]", &angularWave[0], 0, 20);
-			ImGui::SliderFloat("angularWave[1]", &angularWave[1], 0, 20);
+			ImGui::SliderFloat("Height[0]", &height[0], 0, 5.0f);
+			ImGui::SliderFloat("Height[1]", &height[1], 0, 5.0f);
+			ImGui::SliderFloat("WaveLenght[0]", &waveLength[0], 0, 20);
+			ImGui::SliderFloat("WaveLenght[1]", &waveLength[1], 0, 20);
 			
 		//}
 
-		ImGui::SliderFloat("angularFrequency[0]", &angularFrequency[0], 0, 20);
-		ImGui::SliderFloat("angularFrequency[1]", &angularFrequency[1], 0, 20);
+		ImGui::SliderFloat("Frequency[0]", &Frequency[0], 0, 20);
+		ImGui::SliderFloat("Frequency[1]", &Frequency[1], 0, 20);
 
-		ImGui::SliderFloat("phaseShift[0]", &phaseShift[0], 0, 5);
-		ImGui::SliderFloat("phaseShift[1]", &phaseShift[1], 0, 5);
+		ImGui::SliderFloat("Shift[0]", &Shift[0], 0, 5);
+		ImGui::SliderFloat("Shift[1]", &Shift[1], 0, 5);
 
 		ImGui::InputInt("numebr of blurs", &times);
 		ImGui::SliderFloat("bloom Treshhold", &brightThreshHold, 0, 1);
