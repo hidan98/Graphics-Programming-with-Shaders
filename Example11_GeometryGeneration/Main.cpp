@@ -14,8 +14,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	system->run();
 
 	// Shutdown and release the system object.
+	/*if (app)
+	{
+		delete app;
+		app = nullptr;
+	}*/
+
 	delete system;
 	system = 0;
+	
+	
 
 	return 0;
 }

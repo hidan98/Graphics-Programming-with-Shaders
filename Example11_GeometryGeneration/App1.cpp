@@ -71,6 +71,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	orthoMesh1 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 4, screenHeight / -4);
 
 	stopTime = true;
+	timeButtonText = "Press to start";
 
 	//set up render textures
 	shadowInfo_->shadowMap[0] = new RenderTexture(renderer->getDevice(), shadowmapWidth, shadowmapHeight, SCREEN_NEAR, SCREEN_DEPTH);
@@ -80,6 +81,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	bloomTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	texture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	testTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);	
+
+
+	camera->setPosition(0, 4.0f, 0);
 }
 
 //renders thr brightest part of the geoometry to a render texture
@@ -345,7 +349,6 @@ void App1::finalPass()
 	renderer->setZBuffer(true);
 
 
-
 	worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX orthView = camera->getOrthoViewMatrix();
 	XMMATRIX orthProj = renderer->getOrthoMatrix();
@@ -372,9 +375,186 @@ void App1::finalPass()
 
 }
 
-
+//does not get called... issue in framework
 App1::~App1()
 {
+
+	if (textureShader)
+	{
+		delete textureShader;
+		textureShader = nullptr;
+	}
+
+	if (depthShader)
+	{
+		delete depthShader;
+		depthShader = nullptr;
+	}
+
+	if (shadowShader)
+	{
+		delete shadowShader;
+		shadowShader = nullptr;
+	}
+
+	if (tessDepth)
+	{
+		delete tessDepth;
+		tessDepth = nullptr;
+	}
+
+	if (tessShadow)
+	{
+		delete tessShadow;
+		tessShadow = nullptr;
+	}
+	if (bumpShader)
+	{
+		delete bumpShader;
+		bumpShader = nullptr;
+	}
+	if (sphereShadow)
+	{
+		delete sphereShadow;
+		sphereShadow = nullptr;
+	}
+	if (sphereDepth)
+	{
+		delete sphereDepth;
+		sphereDepth = nullptr;
+	}
+	if (sphereExtract)
+	{
+		delete sphereExtract;
+		sphereExtract = nullptr;
+	}
+	if (wibbleExtract)
+	{
+		delete wibbleExtract;
+		wibbleExtract = nullptr;
+	}
+	if (cube)
+	{
+		delete cube;
+		cube = nullptr;
+	}
+	if (plane)
+	{
+		delete plane;
+		plane = nullptr;
+	}
+	if (mesh)
+	{
+		delete mesh;
+		mesh = nullptr;
+	}
+	if (tesselatedCube)
+	{
+		delete tesselatedCube;
+		tesselatedCube = nullptr;
+	}
+	if (orthoMesh)
+	{
+		delete orthoMesh;
+		orthoMesh = nullptr;
+	}
+	if (smallerOrthoMesh)
+	{
+		delete smallerOrthoMesh;
+		smallerOrthoMesh = nullptr;
+	}
+	if (orthoMesh1)
+	{
+		delete orthoMesh1;
+		orthoMesh1 = nullptr;
+	}
+	if (screenOrtho)
+	{
+		delete screenOrtho;
+		screenOrtho = nullptr;
+	}
+	if (shadow)
+	{
+		delete shadow;
+		shadow = nullptr;
+	}
+	if (shadow1)
+	{
+		delete shadow1;
+		shadow1 = nullptr;
+	}
+	if (horizontalBlurTexture)
+	{
+		delete horizontalBlurTexture;
+		horizontalBlurTexture = nullptr;
+	}
+	if (verticalBlurTexture)
+	{
+		delete verticalBlurTexture;
+		verticalBlurTexture = nullptr;
+	}
+	if (bloomTexture)
+	{
+		delete bloomTexture;
+		bloomTexture = nullptr;
+	}
+	if (texture)
+	{
+		delete texture;
+		texture = nullptr;
+	}
+	if (combineTexture)
+	{
+		delete combineTexture;
+		combineTexture = nullptr;
+	}
+	if (testTexture)
+	{
+		delete testTexture;
+		testTexture = nullptr;
+	}
+	if (horizontalShader)
+	{
+		delete horizontalShader;
+		horizontalShader = nullptr;
+	}
+	if (verticalShader)
+	{
+		delete verticalShader;
+		verticalShader = nullptr;
+	}
+	if (extractShader)
+	{
+		delete extractShader;
+		extractShader = nullptr;
+	}
+	if (combine)
+	{
+		delete combine;
+		combine = nullptr;
+	}
+	if (sphere)
+	{
+		delete sphere;
+		sphere = nullptr;
+	}
+	if (shadowInfo_)
+	{
+		delete shadowInfo_;
+		shadowInfo_ = nullptr;
+	}
+	if (light[0])
+	{
+		delete light[0];
+		light[0] = nullptr;
+	}
+	if (light[1])
+	{
+		delete light[1];
+		light[1] = nullptr;
+	}
+
+
 	// Run base application deconstructor
 	BaseApplication::~BaseApplication();
 
@@ -413,8 +593,9 @@ bool App1::render()
 {
 	depthPass();
 	shadowPass();
-	bloomPass();
 	renderer->setWireframeMode(false);
+	bloomPass();
+	
 	finalPass();
 	return true;
 }
@@ -426,20 +607,18 @@ void App1::gui()
 	renderer->getDeviceContext()->HSSetShader(NULL, NULL, 0);
 	renderer->getDeviceContext()->DSSetShader(NULL, NULL, 0);
 
-	if (ImGui::CollapsingHeader("Vars"))
-	{
-		// Build UI
-		ImGui::Text("FPS: %.2f", timer->getFPS());
-		ImGui::Checkbox("Wireframe mode", &wireframeToggle);
+	
+	// Build UI
+	ImGui::Text("FPS: %.2f", timer->getFPS());
+	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 
-		//if (ImGui::TreeNode("Angular"))
-		//{
-			ImGui::SliderFloat("Height[0]", &height[0], 0, 5.0f);
-			ImGui::SliderFloat("Height[1]", &height[1], 0, 5.0f);
-			ImGui::SliderFloat("WaveLenght[0]", &waveLength[0], 0, 20);
-			ImGui::SliderFloat("WaveLenght[1]", &waveLength[1], 0, 20);
-			
-		//}
+	if (ImGui::CollapsingHeader("Wibble Cube"))
+	{
+		ImGui::SliderFloat("Height[0]", &height[0], 0, 5.0f);
+		ImGui::SliderFloat("Height[1]", &height[1], 0, 5.0f);
+		ImGui::SliderFloat("WaveLenght[0]", &waveLength[0], 0, 20);
+		ImGui::SliderFloat("WaveLenght[1]", &waveLength[1], 0, 20);
+
 
 		ImGui::SliderFloat("Frequency[0]", &Frequency[0], 0, 20);
 		ImGui::SliderFloat("Frequency[1]", &Frequency[1], 0, 20);
@@ -447,18 +626,40 @@ void App1::gui()
 		ImGui::SliderFloat("Shift[0]", &Shift[0], 0, 5);
 		ImGui::SliderFloat("Shift[1]", &Shift[1], 0, 5);
 
+		if (ImGui::Button(timeButtonText.c_str()))
+		{
+			stopTime = !stopTime;
+			if (stopTime)
+				timeButtonText = "Press to start";
+			else
+				timeButtonText = "Press to stop";
+		}
+	
+	}
+	
+	ImGui::NewLine();
+	if (ImGui::CollapsingHeader("Bloom"))
+	{
 		ImGui::InputInt("numebr of blurs", &times);
 		ImGui::SliderFloat("bloom Treshhold", &brightThreshHold, 0, 1);
-		ImGui::Checkbox("Stop time", &stopTime);
-
-		ImGui::ColorPicker4("Defuse1", colour);
-		ImGui::ColorPicker4("Ambiant1", colourAmbiant);
-		ImGui::ColorPicker4("Deffuse2", colour1);
-		
-		ImGui::ColorPicker4("Ambiant2", colourAmbiant1);
-
-		//ImGui::TreePop();
 	}
+	
+	
+
+	ImGui::NewLine();
+	if (ImGui::CollapsingHeader("Light 1"))
+	{
+		ImGui::ColorPicker4("Defuse1", colour);
+			ImGui::ColorPicker4("Ambiant1", colourAmbiant);
+	}
+	
+	ImGui::NewLine();
+	if (ImGui::CollapsingHeader("Light 2"))
+	{
+		ImGui::ColorPicker4("Deffuse2", colour1);
+		ImGui::ColorPicker4("Ambiant2", colourAmbiant1);
+	}
+	
 
 	// Render UI
 	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);

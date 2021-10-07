@@ -2,7 +2,8 @@
 
 
 
-TextureShader::TextureShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+TextureShader::TextureShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd),
+sampleState(nullptr)
 {
 	initShader(L"texture_vs.cso", L"texture_ps.cso");
 }

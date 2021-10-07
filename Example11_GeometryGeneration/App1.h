@@ -111,6 +111,8 @@ private:
 
 	float time;
 	bool stopTime;
+	std::string timeButtonText;
+	
 
 	CustomSphereMesh* sphere;
 
@@ -125,6 +127,8 @@ private:
 
 	float brightThreshHold;
 	int times;
+
+
 };
 
 #endif
